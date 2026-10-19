@@ -1,5 +1,6 @@
 import {DEFAULTS,RELATIONS,KINSHIP,uid,text,cleanSettings,cleanPerson,blankFamily,normalizeDocument,validateFamily,analyze,applyRelative,deletePerson,exportDocument} from './model.mjs';
 import {createDiagram} from './diagram.mjs';
+import {renderGenealogyTable,matchesPerson} from './table.mjs';
 const $=id=>document.getElementById(id), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const STORAGE='kinsips-workspace-v2';
 const published=new Map(), history=[];
@@ -27,27 +28,30 @@ function setStyle(){
   document.body.classList.toggle('compact',settings.density==='compact');$('siteTitle').textContent=settings.title;$('siteSubtitle').textContent=settings.subtitle;document.title=(settings.title||'Kinship')+' · Family genealogy';
   for(const [k,v] of Object.entries(settings)){const el=$('customizeForm').elements.namedItem(k);if(el){if(el.type==='checkbox')el.checked=v;else el.value=v;}}
 }
-function matches(p,query){return !query||[p.name,p.label,p.notes,p.birth,p.death].join(' ').toLocaleLowerCase().includes(query);}
-function numHtml(p,m){const classes=['number',p.gender,settings.daughterLine&&m.viaDaughter?'daughter':'',settings.marriageBars&&m.marriage?(m.marriage===1?'bar1':'bar2'):''].filter(Boolean).join(' ');return `<span class="${classes}">${esc(m.number||'—')}</span>`;}
 function renderTable(f,info,q){
-  const headers=[settings.nameLabel,...(settings.showNumbers?[settings.numberLabel]:[]),...(settings.showRelations?[settings.relationLabel]:[]),...(settings.showParents?[settings.parentsLabel]:[]),...(settings.showSpouses?[settings.spouseLabel]:[]),...(settings.showDates?[settings.datesLabel]:[]),...(settings.showNotes?[settings.notesLabel]:[])];
-  const names=ids=>ids.map(id=>info.by.get(id)?.name).filter(Boolean).map(esc).join('<br>');
-  const rows=info.ordered.filter(p=>matches(p,q)).map(p=>{
-    const m=info.meta.get(p.id),dates=[p.birth?'Born '+p.birth:'',p.death?'Died '+p.death:''].filter(Boolean).map(esc).join('<br>');
-    return `<tr><td><button class="person-link" data-person="${esc(p.id)}" style="margin-left:${Math.min(6,m.depth)*12}px" title="Edit ${esc(p.name)}"><span class="person-dot ${p.gender}"></span><span>${esc(p.name)}${p.dead?' <span class="muted">'+esc(settings.deceasedSymbol)+'</span>':''}</span></button>${settings.showGender?'<span class="gender-text">'+(p.gender==='M'?'M':p.gender==='F'?'F':'U')+'</span>':''}</td>${settings.showNumbers?'<td>'+numHtml(p,m)+'</td>':''}${settings.showRelations?'<td>'+(p.label?'<span class="tag">'+esc(p.label)+'</span>':'<span class="muted">—</span>')+'</td>':''}${settings.showParents?'<td>'+names(p.parents)+'</td>':''}${settings.showSpouses?'<td>'+names(p.spouses)+'</td>':''}${settings.showDates?'<td><small>'+dates+'</small></td>':''}${settings.showNotes?'<td><small>'+esc(p.notes)+'</small></td>':''}</tr>`;
-  });
-  $('tablePanel').innerHTML=`<table><caption class="sr-only">${esc(f.name)} genealogy. Select a name to edit.</caption><thead><tr>${headers.map(h=>`<th scope="col">${esc(h)}</th>`).join('')}</tr></thead><tbody>${rows.join('')||`<tr><td colspan="${headers.length}" class="muted">No people match this search.</td></tr>`}</tbody></table>`;
-  $('matchCount').textContent=q?`${rows.length} of ${f.people.length}`:'';
+  const table=renderGenealogyTable(f,settings,info,q);$('tablePanel').innerHTML=table.html;
+  $('matchCount').textContent=q?`${table.matches} of ${f.people.length}`:'';
 }
-function setZoom(value){zoom=Math.min(2.5,Math.max(.15,value));const svg=$('diagramCanvas').querySelector('svg');if(svg&&diagram){svg.setAttribute('width',diagram.width*zoom);svg.setAttribute('height',diagram.height*zoom);}$('zoomValue').textContent=Math.round(zoom*100)+'%';}
+function setZoom(value){zoom=Math.min(2.5,Math.max(.15,value));const svg=$('diagramCanvas').querySelector('svg');if(svg&&diagram){svg.setAttribute('width',diagram.width*zoom);svg.setAttribute('height',diagram.height*zoom);}$('zoomValue').textContent=Math.round(zoom*100)+'%';scheduleChartScroll();}
 function fit(){if(!diagram)return;const viewport=$('diagramViewport');setZoom(Math.min(1,(viewport.clientWidth-45)/diagram.width,(viewport.clientHeight-40)/diagram.height));}
+let scrollFrame=null;
+function scheduleChartScroll(){if(scrollFrame!==null)return;scrollFrame=requestAnimationFrame(()=>{scrollFrame=null;updateChartScroll();});}
+function updateChartScroll(){
+  const viewport=$('diagramViewport'),dock=$('chartScrollDock'),scroll=$('chartFloatScroll'),rect=viewport.getBoundingClientRect();
+  const overflow=Math.max(0,viewport.scrollWidth-viewport.clientWidth);
+  dock.hidden=$('diagramPanel').hidden||overflow<2||rect.bottom<=0||rect.top>=window.innerHeight;
+  if(dock.hidden)return;
+  $('chartFloatWidth').style.width=(scroll.clientWidth+overflow)+'px';
+  if(Math.abs(scroll.scrollLeft-viewport.scrollLeft)>.5)scroll.scrollLeft=viewport.scrollLeft;
+  $('chartLeft').disabled=viewport.scrollLeft<1;$('chartRight').disabled=viewport.scrollLeft>=overflow-1;
+}
 function render(){
   setStyle();rebuild();
   setOptions('familySelect',families.length?families.map(f=>[f.key,f.family.name+(f.source==='Local family'?' · local':'')]):[['','No family selected']],disk.active);
   const f=current(),view=disk.view||settings.view,q=$('search').value.trim().toLocaleLowerCase();
   $('tableView').setAttribute('aria-pressed',view==='table');$('diagramView').setAttribute('aria-pressed',view==='diagram');
   $('tablePanel').hidden=view!=='table'||!f?.people.length;$('diagramPanel').hidden=view!=='diagram'||!f?.people.length;$('downloadSvg').hidden=view!=='diagram'||!f?.people.length;
-  $('emptyState').hidden=!!f?.people.length;$('familySettings').hidden=!f;$('familySettingsButton').disabled=!f;$('exportFamily').disabled=!f;$('exportButton').disabled=!families.length;
+  $('emptyState').hidden=!!f?.people.length;$('familySettings').hidden=!f;$('familySettingsButton').disabled=!f;$('exportFamily').disabled=!f;$('exportButton').disabled=!f;
   $('familyTitle').textContent=f?.name||'Start your family story';$('familyDescription').textContent=f?.description||'';$('familySource').textContent=selected?.source||'FAMILY COLLECTION';$('familyName').value=f?.name||'';$('familyDesc').value=f?.description||'';
   $('resetFamily').hidden=!selected||!published.has(selected.key)||!disk.edits[selected.key];
   $('warnings').replaceChildren();
@@ -55,7 +59,7 @@ function render(){
     const info=analyze(f,settings);$('familyStats').innerHTML=`<div><b>${f.people.length}</b><span>people</span></div><div><b>${info.generations}</b><span>generations</span></div><div><b>${families.length}</b><span>families</span></div>`;
     renderTable(f,info,q);
     let extra=[];
-    if(view==='diagram'&&f.people.length){diagram=createDiagram(f,settings,{query:q});$('diagramCanvas').innerHTML=diagram.svg;extra=diagram.warnings;setZoom(zoom);$('matchCount').textContent=q?`${f.people.filter(p=>matches(p,q)).length} of ${f.people.length}`:'';}
+    if(view==='diagram'&&f.people.length){diagram=createDiagram(f,settings,{query:q});$('diagramCanvas').innerHTML=diagram.svg;extra=diagram.warnings;setZoom(zoom);$('matchCount').textContent=q?`${f.people.filter(p=>matchesPerson(p,q)).length} of ${f.people.length}`:'';}
     const warnings=[...new Set([...(f.warnings||[]),...validateFamily(structuredClone(f)),...extra])];
     if(warnings.length){const details=document.createElement('details');const summary=document.createElement('summary');summary.textContent=`Check ${warnings.length} relationship note${warnings.length===1?'':'s'}`;details.append(summary);for(const message of warnings){const p=document.createElement('p');p.textContent=message;details.append(p);}$('warnings').append(details);}
   }else{$('familyStats').textContent='';$('tablePanel').replaceChildren();$('diagramCanvas').replaceChildren();$('matchCount').textContent='';}
@@ -63,6 +67,7 @@ function render(){
   $('legend').innerHTML=`<span><i class="person-dot M"></i>Male</span><span><i class="person-dot F"></i>Female</span><span><i class="person-dot U"></i>Unknown</span><span>${esc(settings.deceasedSymbol)} Deceased</span>${settings.daughterLine?'<span><b class="number daughter">123</b> Daughter’s line</span>':''}${settings.marriageBars?'<span><b class="number bar1">123</b> 2nd marriage · double bar: 3rd or later</span>':''}`;
   $('undoButton').disabled=!history.length;
   if(storageError)$('saveState').textContent='Browser storage unavailable. Export JSON to keep changes.';
+  scheduleChartScroll();
 }
 async function fetchJSON(path){const r=await fetch(path,{cache:'no-store'});if(!r.ok)throw Error(`Could not load ${path} (${r.status}).`);const str=await r.text();if(str.length>10000000)throw Error(`${path} exceeds the 10 MB file limit.`);return JSON.parse(str);}
 async function loadPublished(){
@@ -73,8 +78,12 @@ async function loadPublished(){
     const results=await Promise.allSettled(manifest.files.map(async name=>{
       if(typeof name!=='string'||!/\.json$/i.test(name)||name.split('/').some(x=>x==='..'||x==='')||name.startsWith('/'))throw Error('Invalid catalog path.');
       const d=normalizeDocument(await fetchJSON('./data/'+name.split('/').map(encodeURIComponent).join('/')),name.replace(/\.json$/i,''));
-      d.tables.forEach((family,i)=>published.set('repo:'+name+'#'+i,{family,source:name}));
+      return {name,tables:d.tables};
     }));
+    for(const result of results)if(result.status==='fulfilled'){
+      const {name,tables}=result.value;
+      tables.forEach((family,i)=>published.set('repo:'+name+'#'+i,{family,source:name,sourceCount:tables.length}));
+    }
     errors=results.filter(x=>x.status==='rejected').map(x=>x.reason.message);
   }catch(e){errors.push(e.message+' Import JSON or use Add .json files to add a family.');}
   try{const s=await fetchJSON('./site-settings.json');if(!disk.settings)settings=cleanSettings(s);}catch{}
@@ -87,7 +96,12 @@ async function loadPublished(){
 function createFamily(){checkpoint();const f=blankFamily();const item={key:'local:'+uid(),family:f};disk.custom.push(item);disk.active=item.key;persist();rebuild();render();$('familySettings').open=true;$('familyName').focus();$('familyName').select();}
 function download(content,name,mime){const blob=new Blob([content],{type:mime}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);}
 function filename(name){return name.normalize('NFC').replace(/[^\p{L}\p{N}._-]+/gu,'-').replace(/^-+|-+$/g,'').slice(0,80)||'family';}
-function exportJSON(all=false){const tables=all?families.map(f=>f.family):[current()].filter(Boolean);download(JSON.stringify(exportDocument(tables,settings),null,2),all?'kinship-collection.json':filename(current()?.name||'family')+'.json','application/json');notice('Exported JSON. To publish it, choose Add .json files and commit it to data/.');}
+function exportJSON(){
+  if(!current())return;
+  const source=published.get(selected.key),name=source?.sourceCount===1?source.source.split('/').pop():selected.exportName||filename(current().name)+'.json';
+  download(JSON.stringify(exportDocument([current()],settings),null,2),name,'application/json');
+  notice(source?.sourceCount===1?`Exported ${name} (one family). Replace data/${source.source} with this file to publish your corrections.`:`Exported ${name} (one family). Use Add .json files to publish it.`);
+}
 function optionsForPeople(exclude=''){return current().people.filter(p=>p.id!==exclude).map((p,i)=>[p.id,p.name+' · '+(p.gender||'U')+(current().people.some(other=>other.id!==p.id&&other.name===p.name)?' · '+p.id.slice(-6):'')]);}
 function openPerson(id=null){
   if(!current()){createFamily();}
@@ -111,12 +125,19 @@ function savePerson(ev){
     if(editing)f.people[f.people.findIndex(x=>x.id===editing)]=p;else f.people.push(p);
     for(const other of f.people)if(other.id!==p.id){other.spouses=other.spouses.filter(id=>id!==p.id);if(p.spouses.includes(other.id))other.spouses.push(p.id);}
     if(!editing)applyRelative(f,p,{relation:$('personRelation').value,target:$('personTarget').value,otherParent:$('personOtherParent').value});
-    f.warnings=[];validateFamily(f);checkpoint();saveFamily(f);$('personDialog').close();notice(p.name+' saved. Export JSON when you are ready to publish.');
+    f.warnings=[];validateFamily(f);checkpoint();saveFamily(f);$('personDialog').close();notice(p.name+' saved on this browser. Export this family and replace its JSON file to publish the correction.');
   }catch(e){$('personError').textContent=e.message;}
+}
+function removePerson(id){
+  const f=current(),p=f?.people.find(p=>p.id===id);if(!p)return;
+  const count=f.people.filter(x=>x.parents.includes(id)||x.spouses.includes(id)).length;
+  if(!confirm(`Delete ${p.name}? ${count} linked record(s) will be disconnected. You can undo this.`))return;
+  checkpoint();const copy=structuredClone(f);deletePerson(copy,id);copy.warnings=[];saveFamily(copy);$('personDialog').close();
+  notice('Entry deleted and saved on this browser. Export this family and replace its JSON file to publish the correction.');
 }
 async function readImports(files){
   const collected=[],errors=[];
-  for(const file of files){try{if(file.size>10000000)throw Error('File exceeds 10 MB.');const d=normalizeDocument(JSON.parse(await file.text()),file.name);collected.push(...d.tables.map(f=>({family:f,filename:file.name,settings:d.settings})));}catch(e){errors.push(file.name+': '+e.message);}}
+  for(const file of files){try{if(file.size>10000000)throw Error('File exceeds 10 MB.');const d=normalizeDocument(JSON.parse(await file.text()),file.name);collected.push(...d.tables.map(f=>({family:f,filename:d.tables.length===1?file.name:filename(f.name)+'.json',settings:d.settings})));}catch(e){errors.push(file.name+': '+e.message);}}
   if(errors.length){notice('Import cancelled. '+errors.join(' '),true);return;}
   if(!collected.length)return;pendingImport=collected;$('importSummary').textContent=`${files.length} file(s), ${collected.length} family/families, ${collected.reduce((n,x)=>n+x.family.people.length,0)} people. Existing families will be kept.`;$('importDialog').showModal();
 }
@@ -135,19 +156,28 @@ $('customizeForm').addEventListener('submit',ev=>{ev.preventDefault();checkpoint
 $('resetStyle').addEventListener('click',()=>{checkpoint();settings={...DEFAULTS};disk.settings=settings;disk.view=settings.view;persist();render();notice('Default appearance restored.');});
 $('search').addEventListener('input',render);
 $('undoButton').addEventListener('click',()=>{if(!history.length)return;disk=JSON.parse(history.pop());settings=cleanSettings(disk.settings||settings);persist();rebuild();render();notice('Last change undone.');});
-$('tablePanel').addEventListener('click',ev=>{const b=ev.target.closest('[data-person]');if(b)openPerson(b.dataset.person);});
+$('tablePanel').addEventListener('click',ev=>{const del=ev.target.closest('[data-delete-person]');if(del){removePerson(del.dataset.deletePerson);return;}const b=ev.target.closest('[data-person]');if(b)openPerson(b.dataset.person);});
 $('diagramCanvas').addEventListener('click',ev=>{const b=ev.target.closest('[data-person]');if(b)openPerson(b.dataset.person);});
 $('diagramCanvas').addEventListener('keydown',ev=>{if(['Enter',' '].includes(ev.key)){const b=ev.target.closest('[data-person]');if(b){ev.preventDefault();openPerson(b.dataset.person);}}});
 $('personForm').addEventListener('submit',savePerson);$('personRelation').addEventListener('change',updateRelation);$('personTarget').addEventListener('change',updateRelation);
 for(const id of ['closePerson','cancelPerson'])$(id).addEventListener('click',()=>$('personDialog').close());
-$('deletePerson').addEventListener('click',()=>{const f=current(),p=f.people.find(p=>p.id===editing),count=f.people.filter(x=>x.parents.includes(p.id)||x.spouses.includes(p.id)).length;if(!confirm(`Delete ${p.name}? ${count} linked record(s) will be disconnected. You can undo this.`))return;checkpoint();const copy=structuredClone(f);deletePerson(copy,p.id);copy.warnings=[];saveFamily(copy);$('personDialog').close();notice('Person deleted; references were removed.');});
+$('deletePerson').addEventListener('click',()=>removePerson(editing));
 $('importButton').addEventListener('click',()=>$('importFiles').click());$('importFiles').addEventListener('change',ev=>{readImports([...ev.target.files]);ev.target.value='';});
 $('cancelImport').addEventListener('click',()=>{pendingImport=[];$('importDialog').close();});
-$('confirmImport').addEventListener('click',()=>{if(!pendingImport.length)return;checkpoint();for(const item of pendingImport){const added={key:'local:'+uid(),family:item.family};disk.custom.push(added);disk.active=added.key;}settings=cleanSettings(pendingImport[0].settings);disk.settings=settings;disk.view=settings.view;const count=pendingImport.length;pendingImport=[];persist();rebuild();render();$('importDialog').close();notice(`Imported ${count} family/families. Existing families were kept.`);});
-$('exportButton').addEventListener('click',()=>exportJSON(true));$('exportFamily').addEventListener('click',()=>exportJSON(false));$('printButton').addEventListener('click',()=>window.print());
+$('confirmImport').addEventListener('click',()=>{if(!pendingImport.length)return;checkpoint();for(const item of pendingImport){const added={key:'local:'+uid(),family:item.family,exportName:item.filename};disk.custom.push(added);disk.active=added.key;}settings=cleanSettings(pendingImport[0].settings);disk.settings=settings;disk.view=settings.view;const count=pendingImport.length;pendingImport=[];persist();rebuild();render();$('importDialog').close();notice(`Imported ${count} family/families. Existing families were kept.`);});
+$('exportButton').addEventListener('click',exportJSON);$('exportFamily').addEventListener('click',exportJSON);$('printButton').addEventListener('click',()=>window.print());
 $('zoomIn').addEventListener('click',()=>setZoom(zoom+.15));$('zoomOut').addEventListener('click',()=>setZoom(zoom-.15));$('fitDiagram').addEventListener('click',fit);
 $('fullscreen').addEventListener('click',async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await $('diagramPanel').requestFullscreen();setTimeout(fit,100);}catch{notice('Full screen is unavailable in this browser. Use the zoom controls instead.',true);}});
 $('downloadSvg').addEventListener('click',()=>{if(diagram)download(diagram.svg,filename(current().name)+'-kinship.svg','image/svg+xml');});
-document.addEventListener('keydown',ev=>{if((ev.ctrlKey||ev.metaKey)&&ev.key==='s'&&!$('personDialog').open){ev.preventDefault();if(current())exportJSON(false);}});
+document.addEventListener('keydown',ev=>{if((ev.ctrlKey||ev.metaKey)&&ev.key==='s'&&!$('personDialog').open){ev.preventDefault();if(current())exportJSON();}});
+$('goTop').addEventListener('click',ev=>{ev.preventDefault();window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});});
+$('goBottom').addEventListener('click',ev=>{ev.preventDefault();window.scrollTo({top:document.documentElement.scrollHeight,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});});
+$('diagramViewport').addEventListener('scroll',scheduleChartScroll,{passive:true});
+$('chartFloatScroll').addEventListener('scroll',()=>{const main=$('diagramViewport'),floating=$('chartFloatScroll');if(Math.abs(main.scrollLeft-floating.scrollLeft)>.5)main.scrollLeft=floating.scrollLeft;scheduleChartScroll();},{passive:true});
+$('chartLeft').addEventListener('click',()=>$('diagramViewport').scrollBy({left:-Math.max(150,$('diagramViewport').clientWidth*.6),behavior:'smooth'}));
+$('chartRight').addEventListener('click',()=>$('diagramViewport').scrollBy({left:Math.max(150,$('diagramViewport').clientWidth*.6),behavior:'smooth'}));
+window.addEventListener('scroll',scheduleChartScroll,{passive:true});window.addEventListener('resize',scheduleChartScroll);
+document.addEventListener('fullscreenchange',scheduleChartScroll);
+if('ResizeObserver' in window){const observer=new ResizeObserver(scheduleChartScroll);observer.observe($('diagramViewport'));observer.observe($('diagramCanvas'));}
 for(const term of [...new Set(Object.values(KINSHIP).flat())]){const option=document.createElement('option');option.value=term;$('kinshipLabels').append(option);}
 render();loadPublished();

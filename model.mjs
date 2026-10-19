@@ -1,7 +1,7 @@
 export const DEFAULTS = Object.freeze({
   title:'Kinship', subtitle:'A place for every generation.', accent:'#356653', male:'#315a9a', female:'#a34369', unknown:'#66736d',
   font:'system', fontSize:15, density:'comfortable', direction:'down', lineStyle:'solid', nodeStyle:'rounded',
-  nameLabel:'Name', numberLabel:'Henry no.', relationLabel:'Relation to root', parentsLabel:'Parents', spouseLabel:'Spouse(s)', datesLabel:'Dates', notesLabel:'Notes',
+  nameLabel:'Name', numberLabel:'Henry No.', relationLabel:'Relation to root', parentsLabel:'Parents', spouseLabel:'Spouse(s)', datesLabel:'Dates', notesLabel:'Comments',
   showNumbers:true, showRelations:true, showDates:true, showNotes:false, showGender:true, showSpouses:true, showParents:true, showLegend:true,
   view:'table', rootNumber:'1', deceasedSymbol:'✝', daughterLine:true, marriageBars:true
 });
@@ -12,8 +12,11 @@ export const uid=()=>globalThis.crypto?.randomUUID?.() || `id-${Date.now().toStr
 export const key=s=>String(s??'').normalize('NFC').toLocaleLowerCase().replace(/\s+/g,' ').trim();
 export const text=(v,max=10000)=>typeof v==='string'?v.slice(0,max):'';
 export function cleanSettings(s={}) {
+  if(!s||typeof s!=='object'||Array.isArray(s))s={};
   const o={...DEFAULTS};
   for(const k of Object.keys(o)) if(typeof s[k]===typeof o[k]) o[k]=typeof s[k]==='string'?s[k].slice(0,250):s[k];
+  if(o.numberLabel==='Henry no.')o.numberLabel=DEFAULTS.numberLabel;
+  if(o.notesLabel==='Notes')o.notesLabel=DEFAULTS.notesLabel;
   for(const k of ['accent','male','female','unknown']) if(!/^#[a-f\d]{6}$/i.test(o[k])) o[k]=DEFAULTS[k];
   o.fontSize=Math.min(22,Math.max(12,Number(o.fontSize)||15));
   for(const [k,choices] of Object.entries({font:['system','serif','nepali'],density:['compact','comfortable'],direction:['down','right'],lineStyle:['solid','dashed','dotted'],nodeStyle:['rounded','square'],view:['table','diagram']})) if(!choices.includes(o[k])) o[k]=DEFAULTS[k];
@@ -25,7 +28,7 @@ export function cleanPerson(p) {
     parents:[...new Set((Array.isArray(p.parents)?p.parents:[]).filter(x=>typeof x==='string'))].slice(0,2),
     spouses:[...new Set((Array.isArray(p.spouses)?p.spouses:[]).filter(x=>typeof x==='string'))],
     order:Number.isInteger(Number(p.order))&&Number(p.order)>0?Math.min(999,Number(p.order)):null,
-    birth:text(p.birth,80),death:text(p.death,80),label:text(p.label,250),notes:text(p.notes,5000)};
+    birth:text(p.birth,80),death:text(p.death,80),label:text(p.label,250),notes:text(p.notes||p.comments,5000)};
 }
 export function validateFamily(f) {
   const warnings=[], ids=new Set();
@@ -49,11 +52,13 @@ export function validateFamily(f) {
 }
 export function legacyFamily(t) {
   const f=blankFamily(text(t.name,250)||'Family'), by=new Map(), entries=t.entries;
+  f.description=text(t.description,2000);
   const get=n=>{const k=key(n);if(!k)throw Error('A legacy relationship is missing a name.');if(!by.has(k)){const p=cleanPerson({id:uid(),name:n});by.set(k,p);f.people.push(p);}return by.get(k);};
   const marry=(a,b)=>{if(!a.spouses.includes(b.id))a.spouses.push(b.id);if(!b.spouses.includes(a.id))b.spouses.push(a.id);};
   for(const e of entries) {
     if(!e||!text(e.name).trim()||!RELATIONS[e.rel])throw Error('Invalid legacy person entry.');
     const p=get(e.name); p.gender=GENDERS[e.rel]||(['M','F','U'].includes(e.gender)?e.gender:p.gender);p.dead=!!e.dead;p.order=Number(e.ord)||null;
+    p.birth=text(e.birth,80);p.death=text(e.death,80);p.notes=text(e.notes||e.comments,5000);
     p.label=e.rr?.key==='custom'?text(e.rr.custom,250):(KINSHIP[e.rr?.key]?.[(e.rr.role||2)-1]||'');
     if(e.rel!=='ancestor')get(e.who);
   }
@@ -99,6 +104,7 @@ export function legacyFamily(t) {
 }
 export function normalizeDocument(d,filename='Family') {
   if(Array.isArray(d))d={tables:d};
+  if(d&&Array.isArray(d.entries)&&!Array.isArray(d.tables))d={tables:[{...d,name:d.name||filename}],settings:d.settings};
   if(d&&Array.isArray(d.people))d={tables:[{...d,name:d.name||filename}],settings:d.settings};
   if(!d||!Array.isArray(d.tables)||!d.tables.length||d.tables.length>200)throw Error('Use a JSON object with a non-empty tables array (up to 200 families).');
   const tables=d.tables.map(t=>{
@@ -154,4 +160,7 @@ export function applyRelative(f,person,{relation='ancestor',target='',otherParen
   }
 }
 export function deletePerson(f,id) { f.people=f.people.filter(p=>p.id!==id);for(const p of f.people){p.parents=p.parents.filter(x=>x!==id);p.spouses=p.spouses.filter(x=>x!==id);} }
-export function exportDocument(tables,settings) {return {format:'kinsips',version:2,exported:new Date().toISOString(),settings:cleanSettings(settings),tables:tables.map(({warnings,...t})=>structuredClone(t))};}
+export function exportDocument(tables,settings) {
+  if(!Array.isArray(tables)||tables.length!==1)throw Error('Export exactly one family per JSON file.');
+  return {format:'kinsips',version:2,exported:new Date().toISOString(),settings:cleanSettings(settings),tables:tables.map(({warnings,...t})=>structuredClone(t))};
+}

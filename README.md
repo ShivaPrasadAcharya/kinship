@@ -16,11 +16,11 @@ You can add multiple `.json` files, including files in subfolders of `data/`. Ea
 - **Family settings:** table name, description, new/duplicate/delete family, restore published data.
 - **Customize:** page title, subtitle, every table heading, column visibility, colors, font, text size, spacing, Henry numbering, deceased symbol, daughter-line and marriage-order marks, diagram orientation, nodes, and connectors.
 - **Select a person:** edit their name, gender, parents, spouses, order, dates, relation label, and notes. Stable IDs allow duplicate names and safe renaming.
-- **Diagram:** both parents, multiple spouses, zoom, fit, full screen, and downloadable SVG.
-- **Table:** search, indentation, Henry numbers, customizable columns, print.
-- **Import/export:** multiple-file import and single-family or complete-collection export.
+- **Diagram:** both parents, multiple spouses, zoom, fit, full screen, downloadable SVG, and a floating synchronized horizontal scrollbar. Floating ↑ / ↓ links move to the top and bottom of the page.
+- **Table:** four columns (Name, Henry No., Dates, Comments), indented descendants, spouses directly under names with marriage numbers, and visible Edit / Delete controls.
+- **Import/export:** multiple-file import and one-family-per-file JSON export.
 
-Browser edits stay on that device. Published data is loaded alongside browser edits without replacing them. Export and upload JSON to publish edits. Shared page defaults are in the root `site-settings.json`; exported JSON also includes local settings, which are restored on import. Edit `site-settings.json` to change defaults for all visitors.
+Browser edits stay on that device. Published data is loaded alongside browser edits without replacing them. Each JSON export contains only the selected family. Existing published families keep their original JSON filename when exported. Export and replace the same file in its original folder to publish corrections and deletions. Shared page defaults are in the root `site-settings.json`; exported JSON also includes local settings, which are restored on import. Edit `site-settings.json` to change defaults for all visitors.
 
 ## JSON formats
 
@@ -44,7 +44,7 @@ New exports use stable IDs:
 }
 ```
 
-Optional person fields: `dead` (boolean), `birth`, `death`, `label`, `notes`, `order` (1–999). Dates accept Nepali or Gregorian formats as free text. List up to two parents; the first determines the Henry numbering line. Spouse links are made reciprocal automatically. Missing references, duplicate IDs, self-relationships, and parent cycles are rejected. Unresolved siblings in legacy files are flagged for correction. Legacy added-root grandparent links retain intermediate unknown parents. Kinship labels can be Nepali or any custom text.
+Optional person fields: `dead` (boolean), `birth`, `death`, `label`, `notes`, `order` (1–999). Dates accept Nepali or Gregorian formats as free text. List up to two parents; the first determines the Henry numbering line. Spouse links are made reciprocal automatically. Missing references, duplicate IDs, self-relationships, and parent cycles are rejected. Unresolved siblings in legacy files are flagged for correction. Legacy added-root grandparent links retain intermediate unknown parents. Kinship labels can be Nepali or any custom text. `comments` is accepted as an alias for `notes`, including in legacy entry files. Standalone single-family objects with either `people` or `entries` also load automatically. Older multi-family files remain readable; new exports always contain exactly one family.
 
 ## Run checks
 
