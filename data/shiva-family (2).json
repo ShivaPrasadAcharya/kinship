@@ -1,0 +1,629 @@
+{
+  "format": "kinsips",
+  "version": 2,
+  "exported": "2026-10-19T11:01:57.183Z",
+  "settings": {
+    "title": "Kinship",
+    "subtitle": "A place for every generation.",
+    "accent": "#356653",
+    "male": "#315a9a",
+    "female": "#a34369",
+    "unknown": "#66736d",
+    "font": "system",
+    "fontSize": 15,
+    "density": "comfortable",
+    "direction": "down",
+    "lineStyle": "solid",
+    "nodeStyle": "rounded",
+    "nameLabel": "Name",
+    "numberLabel": "Henry No.",
+    "relationLabel": "Relation to root",
+    "parentsLabel": "Parents",
+    "spouseLabel": "Spouse(s)",
+    "datesLabel": "Dates",
+    "notesLabel": "Comments",
+    "showNumbers": true,
+    "showRelations": true,
+    "showDates": true,
+    "showNotes": false,
+    "showGender": true,
+    "showSpouses": true,
+    "showParents": true,
+    "showLegend": true,
+    "view": "table",
+    "rootNumber": "1",
+    "deceasedSymbol": "✝",
+    "daughterLine": true,
+    "marriageBars": true
+  },
+  "tables": [
+    {
+      "id": "202501a1-d4af-4776-a082-43f47ad8dff3",
+      "name": "shiva family",
+      "description": "",
+      "people": [
+        {
+          "id": "aca60b61-311e-46ec-8909-e79659911db5",
+          "name": "Bhupati",
+          "gender": "M",
+          "dead": true,
+          "parents": [
+            "82821dba-7cd7-4451-91a8-e4b2fee75b9e",
+            "5e827e97-8b16-4919-9b9b-534db4811b34"
+          ],
+          "spouses": [
+            "773294ec-3a41-4802-9500-142b23a2979a"
+          ],
+          "order": null,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
+        },
+        {
+          "id": "773294ec-3a41-4802-9500-142b23a2979a",
+          "name": "Radhika",
+          "gender": "F",
+          "dead": false,
+          "parents": [],
+          "spouses": [
+            "aca60b61-311e-46ec-8909-e79659911db5"
+          ],
+          "order": null,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
+        },
+        {
+          "id": "d88970a5-167d-47fa-9fd4-2bbd0118cb50",
+          "name": "Rajendra",
+          "gender": "M",
+          "dead": false,
+          "parents": [
+            "aca60b61-311e-46ec-8909-e79659911db5",
+            "773294ec-3a41-4802-9500-142b23a2979a"
+          ],
+          "spouses": [
+            "d9185589-0985-4883-8c42-cada81edad3b"
+          ],
+          "order": null,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
+        },
+        {
+          "id": "d9185589-0985-4883-8c42-cada81edad3b",
+          "name": "Sita",
+          "gender": "F",
+          "dead": false,
+          "parents": [],
+          "spouses": [
+            "d88970a5-167d-47fa-9fd4-2bbd0118cb50"
+          ],
+          "order": null,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
+        },
+        {
+          "id": "01252ff7-db45-4801-adaf-f558943faac4",
+          "name": "Shiva",
+          "gender": "M",
+          "dead": false,
+          "parents": [
+            "d88970a5-167d-47fa-9fd4-2bbd0118cb50",
+            "d9185589-0985-4883-8c42-cada81edad3b"
+          ],
+          "spouses": [
+            "4d54d346-7f69-46d1-a9f1-881820e2aa32"
+          ],
+          "order": null,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
+        },
+        {
+          "id": "088b10e5-437f-49ec-9e97-8f745508764b",
+          "name": "Ambika",
+          "gender": "F",
+          "dead": false,
+          "parents": [
+            "d88970a5-167d-47fa-9fd4-2bbd0118cb50",
+            "d9185589-0985-4883-8c42-cada81edad3b"
+          ],
+          "spouses": [],
+          "order": null,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
+        },
+        {
+          "id": "723b1f47-a0bb-4ad3-83df-bcac6647ceaa",
+          "name": "Bishnu",
+          "gender": "F",
+          "dead": false,
+          "parents": [
+            "d88970a5-167d-47fa-9fd4-2bbd0118cb50",
+            "d9185589-0985-4883-8c42-cada81edad3b"
+          ],
+          "spouses": [],
+          "order": 3,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
+        },
+        {
+          "id": "3ab7e6af-6506-4ad7-8683-6084155495ef",
+          "name": "Durga",
+          "gender": "F",
+          "dead": false,
+          "parents": [
+            "d88970a5-167d-47fa-9fd4-2bbd0118cb50",
+            "d9185589-0985-4883-8c42-cada81edad3b"
+          ],
+          "spouses": [],
+          "order": 4,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
+        },
+        {
+          "id": "3ab35890-0310-454b-8e17-8c6850a1d6bd",
+          "name": "Gopi Krishna",
+          "gender": "M",
+          "dead": false,
+          "parents": [
+            "aca60b61-311e-46ec-8909-e79659911db5",
+            "773294ec-3a41-4802-9500-142b23a2979a"
+          ],
+          "spouses": [
+            "a396cd33-e00b-4f70-afa3-5cb4ebf4f123"
+          ],
+          "order": null,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
+        },
+        {
+          "id": "fa4c25a3-702a-4285-83da-e766e3c6117f",
+          "name": "Mahadev",
+          "gender": "M",
+          "dead": false,
+          "parents": [
+            "aca60b61-311e-46ec-8909-e79659911db5",
+            "773294ec-3a41-4802-9500-142b23a2979a"
+          ],
+          "spouses": [
+            "b860d94b-6d60-49df-825b-00486a66fa8a"
+          ],
+          "order": 4,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
+        },
+        {
+          "id": "3f423269-0b83-446a-8c0c-a63c499333d5",
+          "name": "Yoshadha",
+          "gender": "F",
+          "dead": false,
+          "parents": [
+            "aca60b61-311e-46ec-8909-e79659911db5",
+            "773294ec-3a41-4802-9500-142b23a2979a"
+          ],
+          "spouses": [
+            "6e22aa6a-836e-4bae-9439-5247558aafba"
+          ],
+          "order": 2,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
+        },
+        {
+          "id": "d809140f-1006-4e8f-b855-df8ef52eb850",
+          "name": "Samir",
+          "gender": "M",
+          "dead": false,
+          "parents": [
+            "3ab35890-0310-454b-8e17-8c6850a1d6bd"
+          ],
+          "spouses": [],
+          "order": null,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
+        },
+        {
+          "id": "a396cd33-e00b-4f70-afa3-5cb4ebf4f123",
+          "name": "Saraswoti",
+          "gender": "F",
+          "dead": false,
+          "parents": [],
+          "spouses": [
+            "3ab35890-0310-454b-8e17-8c6850a1d6bd"
+          ],
+          "order": null,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
+        },
+        {
+          "id": "b860d94b-6d60-49df-825b-00486a66fa8a",
+          "name": "Shova",
+          "gender": "F",
+          "dead": false,
+          "parents": [],
+          "spouses": [
+            "fa4c25a3-702a-4285-83da-e766e3c6117f"
+          ],
+          "order": null,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
+        },
+        {
+          "id": "4d54d346-7f69-46d1-a9f1-881820e2aa32",
+          "name": "Debaka",
+          "gender": "F",
+          "dead": false,
+          "parents": [],
+          "spouses": [
+            "01252ff7-db45-4801-adaf-f558943faac4"
+          ],
+          "order": null,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
+        },
+        {
+          "id": "7a3db436-64e5-446c-b28b-bb4bb371c985",
+          "name": "Sumit",
+          "gender": "M",
+          "dead": false,
+          "parents": [
+            "fa4c25a3-702a-4285-83da-e766e3c6117f",
+            "b860d94b-6d60-49df-825b-00486a66fa8a"
+          ],
+          "spouses": [],
+          "order": null,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
+        },
+        {
+          "id": "dbc4c1bc-1f73-4049-8962-2e73d51950fe",
+          "name": "Swostika",
+          "gender": "F",
+          "dead": false,
+          "parents": [
+            "fa4c25a3-702a-4285-83da-e766e3c6117f",
+            "b860d94b-6d60-49df-825b-00486a66fa8a"
+          ],
+          "spouses": [],
+          "order": null,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
+        },
+        {
+          "id": "6e22aa6a-836e-4bae-9439-5247558aafba",
+          "name": "Bajramohan",
+          "gender": "M",
+          "dead": false,
+          "parents": [],
+          "spouses": [
+            "3f423269-0b83-446a-8c0c-a63c499333d5"
+          ],
+          "order": null,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
+        },
+        {
+          "id": "4c2390ba-e094-4b9d-8bb9-8253b208e309",
+          "name": "Kamal",
+          "gender": "M",
+          "dead": false,
+          "parents": [
+            "3f423269-0b83-446a-8c0c-a63c499333d5",
+            "6e22aa6a-836e-4bae-9439-5247558aafba"
+          ],
+          "spouses": [],
+          "order": null,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
+        },
+        {
+          "id": "9f3877c7-1944-4261-b77d-b0d9a9e35acc",
+          "name": "Pabitra",
+          "gender": "F",
+          "dead": false,
+          "parents": [
+            "3f423269-0b83-446a-8c0c-a63c499333d5",
+            "6e22aa6a-836e-4bae-9439-5247558aafba"
+          ],
+          "spouses": [],
+          "order": 2,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
+        },
+        {
+          "id": "35042249-0fe0-4840-8071-307a4e84aed4",
+          "name": "Keshav",
+          "gender": "M",
+          "dead": false,
+          "parents": [
+            "3f423269-0b83-446a-8c0c-a63c499333d5",
+            "6e22aa6a-836e-4bae-9439-5247558aafba"
+          ],
+          "spouses": [],
+          "order": 3,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
+        },
+        {
+          "id": "82821dba-7cd7-4451-91a8-e4b2fee75b9e",
+          "name": "HariLal",
+          "gender": "M",
+          "dead": false,
+          "parents": [],
+          "spouses": [
+            "004cd5f6-0c25-47e4-bec4-d75122cb65fa",
+            "5e827e97-8b16-4919-9b9b-534db4811b34"
+          ],
+          "order": null,
+          "birth": "",
+          "death": "",
+          "label": "बाबु",
+          "notes": ""
+        },
+        {
+          "id": "04fd329f-07f4-4f27-952b-8b0b81b65461",
+          "name": "शिवप्रसाद",
+          "gender": "M",
+          "dead": false,
+          "parents": [
+            "d88970a5-167d-47fa-9fd4-2bbd0118cb50",
+            "d9185589-0985-4883-8c42-cada81edad3b"
+          ],
+          "spouses": [],
+          "order": null,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
+        },
+        {
+          "id": "d27aea74-702f-45de-9c08-35c703073b4a",
+          "name": "सन्तलाल",
+          "gender": "M",
+          "dead": false,
+          "parents": [
+            "82821dba-7cd7-4451-91a8-e4b2fee75b9e"
+          ],
+          "spouses": [
+            "9b2a2fc7-e41d-41ee-a20a-82b37ecadc10"
+          ],
+          "order": null,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
+        },
+        {
+          "id": "004cd5f6-0c25-47e4-bec4-d75122cb65fa",
+          "name": "Batuli",
+          "gender": "F",
+          "dead": false,
+          "parents": [],
+          "spouses": [
+            "82821dba-7cd7-4451-91a8-e4b2fee75b9e"
+          ],
+          "order": null,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
+        },
+        {
+          "id": "9b2a2fc7-e41d-41ee-a20a-82b37ecadc10",
+          "name": "नारायणी",
+          "gender": "F",
+          "dead": false,
+          "parents": [],
+          "spouses": [
+            "d27aea74-702f-45de-9c08-35c703073b4a"
+          ],
+          "order": null,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
+        },
+        {
+          "id": "56392b6a-cf7f-4e80-8639-8ec8d56d0225",
+          "name": "कृष्ण",
+          "gender": "M",
+          "dead": false,
+          "parents": [
+            "d27aea74-702f-45de-9c08-35c703073b4a",
+            "9b2a2fc7-e41d-41ee-a20a-82b37ecadc10"
+          ],
+          "spouses": [
+            "9f55479b-9320-489b-b549-85200e5855b4"
+          ],
+          "order": null,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
+        },
+        {
+          "id": "20de1240-4a6a-41c3-b88a-41b2ff87cdef",
+          "name": "दुर्गा",
+          "gender": "F",
+          "dead": false,
+          "parents": [
+            "d27aea74-702f-45de-9c08-35c703073b4a",
+            "9b2a2fc7-e41d-41ee-a20a-82b37ecadc10"
+          ],
+          "spouses": [],
+          "order": null,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
+        },
+        {
+          "id": "fa10cc19-186a-4abd-a562-5a8c0f2b2095",
+          "name": "विष्णु",
+          "gender": "F",
+          "dead": false,
+          "parents": [
+            "9b2a2fc7-e41d-41ee-a20a-82b37ecadc10",
+            "d27aea74-702f-45de-9c08-35c703073b4a"
+          ],
+          "spouses": [],
+          "order": null,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
+        },
+        {
+          "id": "cde0053d-40ea-4d89-be25-9e5535f1cd18",
+          "name": "Balaram",
+          "gender": "M",
+          "dead": false,
+          "parents": [
+            "d27aea74-702f-45de-9c08-35c703073b4a",
+            "9b2a2fc7-e41d-41ee-a20a-82b37ecadc10"
+          ],
+          "spouses": [
+            "c91b0d30-83fc-4722-a9f0-9d8a5fc4dfe3"
+          ],
+          "order": null,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
+        },
+        {
+          "id": "9f55479b-9320-489b-b549-85200e5855b4",
+          "name": "राधिका",
+          "gender": "M",
+          "dead": false,
+          "parents": [],
+          "spouses": [
+            "56392b6a-cf7f-4e80-8639-8ec8d56d0225"
+          ],
+          "order": null,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
+        },
+        {
+          "id": "e188d1bf-cb0b-46e1-9ecf-aa6c9fcbeb35",
+          "name": "कुशल",
+          "gender": "M",
+          "dead": false,
+          "parents": [
+            "56392b6a-cf7f-4e80-8639-8ec8d56d0225",
+            "9f55479b-9320-489b-b549-85200e5855b4"
+          ],
+          "spouses": [],
+          "order": null,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
+        },
+        {
+          "id": "cb041517-403b-484f-a522-929281e477dd",
+          "name": "कृत्तिका",
+          "gender": "F",
+          "dead": false,
+          "parents": [
+            "56392b6a-cf7f-4e80-8639-8ec8d56d0225",
+            "9f55479b-9320-489b-b549-85200e5855b4"
+          ],
+          "spouses": [],
+          "order": null,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
+        },
+        {
+          "id": "c91b0d30-83fc-4722-a9f0-9d8a5fc4dfe3",
+          "name": "विनिता",
+          "gender": "F",
+          "dead": false,
+          "parents": [],
+          "spouses": [
+            "cde0053d-40ea-4d89-be25-9e5535f1cd18"
+          ],
+          "order": null,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
+        },
+        {
+          "id": "3177cb31-aca1-468f-8c4d-9ff141caeff2",
+          "name": "वविता",
+          "gender": "F",
+          "dead": false,
+          "parents": [
+            "cde0053d-40ea-4d89-be25-9e5535f1cd18",
+            "c91b0d30-83fc-4722-a9f0-9d8a5fc4dfe3"
+          ],
+          "spouses": [],
+          "order": null,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
+        },
+        {
+          "id": "5e827e97-8b16-4919-9b9b-534db4811b34",
+          "name": "कलावती",
+          "gender": "F",
+          "dead": true,
+          "parents": [],
+          "spouses": [
+            "82821dba-7cd7-4451-91a8-e4b2fee75b9e"
+          ],
+          "order": null,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
+        }
+      ]
+    }
+  ]
+}
