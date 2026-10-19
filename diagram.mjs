@@ -42,13 +42,27 @@ export function createDiagram(f,s,{query=''}={}) {
   if(right){for(const pos of positions.values()){const x=pos.x,y=pos.y;pos.x=pad+(y-pad)/(cardH+layerGap)*(cardW+120);pos.y=pad+(x-pad)/(cardW+gap)*(cardH+gap);}width=(maxRank+1)*cardW+maxRank*120+pad*2;height=Math.max(cardH+pad*2,...[...positions.values()].map(p=>p.y+cardH+pad));}
   const font=s.font==='serif'?'Georgia, serif':s.font==='nepali'?'Noto Sans Devanagari, Nirmala UI, sans-serif':'system-ui, Segoe UI, sans-serif';
   const edgeDash=s.lineStyle==='dashed'?'7 4':s.lineStyle==='dotted'?'2 4':'';
+  // Give each parent set its own connector track. Different couples must not
+  // merge into a shared horizontal (or vertical) bus between generations.
+  const branchLayers=new Map(), branchKey=p=>JSON.stringify([...p.parents].sort());
+  for(const p of f.people)if(p.parents.length){
+    const level=members.get(groupOf.get(p.id)).rank;
+    if(!branchLayers.has(level))branchLayers.set(level,[]);
+    const keys=branchLayers.get(level),key=branchKey(p);if(!keys.includes(key))keys.push(key);
+  }
   let edges='',nodes='';const spousePairs=new Set();
   for(const p of f.people){
     const pos=positions.get(p.id);
+    let track=0;
+    if(p.parents.length){
+      const keys=branchLayers.get(members.get(groupOf.get(p.id)).rank),fraction=(keys.indexOf(branchKey(p))+1)/(keys.length+1);
+      const start=Math.max(...p.parents.map(id=>{const parent=positions.get(id);return right?parent.x+cardW:parent.y+cardH;}));
+      track=start+((right?pos.x:pos.y)-start)*fraction;
+    }
     for(const id of p.parents){
       const par=positions.get(id);if(!par)continue;
-      const d=right?`M${par.x+cardW},${par.y+cardH/2} H${(par.x+cardW+pos.x)/2} V${pos.y+cardH/2} H${pos.x}`:`M${par.x+cardW/2},${par.y+cardH} V${(par.y+cardH+pos.y)/2} H${pos.x+cardW/2} V${pos.y}`;
-      edges+=`<path class="parent-edge" d="${d}" stroke="#afbd9f" fill="none" stroke-width="1.3" stroke-dasharray="${edgeDash}" marker-end="url(#arrow)"/>`;
+      const d=right?`M${par.x+cardW},${par.y+cardH/2} H${track} V${pos.y+cardH/2} H${pos.x}`:`M${par.x+cardW/2},${par.y+cardH} V${track} H${pos.x+cardW/2} V${pos.y}`;
+      edges+=`<path class="parent-edge" data-child="${esc(p.id)}" data-track="${track}" d="${d}" stroke="#afbd9f" fill="none" stroke-width="1.3" stroke-dasharray="${edgeDash}" marker-end="url(#arrow)"/>`;
     }
     for(const id of p.spouses){const other=positions.get(id),pair=[p.id,id].sort().join('|');if(!other||spousePairs.has(pair))continue;spousePairs.add(pair);
       const start=right?{x:pos.x+cardW/2,y:Math.min(pos.y,other.y)+cardH}:{x:Math.min(pos.x,other.x)+cardW,y:pos.y+cardH/2};
