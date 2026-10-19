@@ -23,12 +23,12 @@ for(const file of files){
   count+=d.tables.length;people+=d.tables.reduce((n,t)=>n+t.people.length,0);
   await fs.mkdir(path.dirname(path.join(out,'data',file)),{recursive:true});await fs.writeFile(path.join(out,'data',file),raw);
 }
-const assets=['index.html','styles.css','app.mjs','model.mjs','diagram.mjs','favicon.svg'];
+const assets=['index.html','styles.css','app.mjs','model.mjs','diagram.mjs','table.mjs','favicon.svg'];
 const sources=await Promise.all(assets.map(file=>fs.readFile(path.join(root,file),'utf8')));
 const version=createHash('sha256').update(sources.join('\n')).digest('hex').slice(0,12);
 for(let i=0;i<assets.length;i++){
   let source=sources[i];
-  if(assets[i].endsWith('.mjs'))source=source.replace(/(['"])(\.\/(?:model|diagram)\.mjs)\1/g,(_,quote,url)=>quote+url+'?v='+version+quote);
+  if(assets[i].endsWith('.mjs'))source=source.replace(/(['"])(\.\/(?:model|diagram|table)\.mjs)\1/g,(_,quote,url)=>quote+url+'?v='+version+quote);
   if(assets[i]==='index.html')source=source.replace(/(\.\/(?:app\.mjs|styles\.css|favicon\.svg))(["'])/g,'$1?v='+version+'$2');
   await fs.writeFile(path.join(out,assets[i]),source);
 }
