@@ -11,7 +11,7 @@ test('every parent keeps a distinct style on every child edge and in its card sw
   const f=sample(),d=createDiagram(f,DEFAULTS),edges=edgeAttributes(d.svg);
   assert.equal(edges.length,f.people.reduce((n,p)=>n+p.parents.length,0));
   assert.equal(new Set(d.parentStyles.map(s=>s.color)).size,d.parentStyles.length);
-  assert.ok(new Set(d.parentStyles.map(s=>s.weight)).size>1);
+  assert.equal(new Set(d.parentStyles.map(s=>s.weight)).size,d.parentStyles.length);
   for(const style of d.parentStyles){const paths=edges.filter(e=>e['data-parent']===style.id);assert.equal(paths.length,style.children);for(const path of paths){assert.equal(path.stroke,style.color);assert.equal(Number(path['stroke-width']),style.weight);assert.equal(path['marker-end'],`url(#${style.marker})`);}}
   assert.equal((d.svg.match(/class="parent-swatch"/g)||[]).length,d.parentStyles.length);
 });
