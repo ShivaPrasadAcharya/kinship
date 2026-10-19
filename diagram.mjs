@@ -36,8 +36,13 @@ export function createDiagram(f,s,{query='',search=createSearch(query),namespace
   function rank(g){if(done.has(g.id))return g.rank;if(active.has(g.id)){warnings.push('Cross-generation marriages cannot all share a row; some connectors run upwards.');return 0;}active.add(g.id);g.rank=Math.max(0,...[...g.parents].map(id=>rank(members.get(id))+1));active.delete(g.id);done.add(g.id);return g.rank;}
   groups.forEach(rank);
   const layers=new Map();for(const g of groups){if(!layers.has(g.rank))layers.set(g.rank,[]);layers.get(g.rank).push(g);}
-  const branchLayers=new Map(),branchKey=(p,id)=>JSON.stringify([[...p.parents].sort(),id]);
-  for(const p of f.people)for(const id of p.parents){const level=members.get(groupOf.get(p.id)).rank;if(!branchLayers.has(level))branchLayers.set(level,[]);const keys=branchLayers.get(level),key=branchKey(p,id);if(!keys.includes(key))keys.push(key);}
+  const unions=new Map(),branchLayers=new Map(),parentKey=p=>JSON.stringify([...p.parents].sort());
+  for(const p of f.people)if(p.parents.length){
+    const key=parentKey(p),level=members.get(groupOf.get(p.id)).rank;
+    if(!unions.has(key))unions.set(key,{id:unions.size,parents:[...p.parents],children:[],levels:new Map()});
+    const union=unions.get(key);union.children.push(p);if(!union.levels.has(level))union.levels.set(level,[]);union.levels.get(level).push(p);
+    if(!branchLayers.has(level))branchLayers.set(level,[]);const keys=branchLayers.get(level);if(!keys.includes(key))keys.push(key);
+  }
   const parentIds=new Set(f.people.flatMap(p=>p.parents)),parentStyles=f.people.filter(p=>parentIds.has(p.id)).map((p,i)=>({id:p.id,name:p.name,color:connectorPalette[i]||`hsl(${(i*137.508%360).toFixed(2)} 32% 44%)`,weight:Number((1.6+i*2/Math.max(1,parentIds.size-1)).toFixed(3)),marker:i?arrow+'-'+i:arrow,children:f.people.filter(c=>c.parents.includes(p.id)).length})),styleBy=new Map(parentStyles.map(style=>[style.id,style]));
   const routes=Math.max(1,...[...branchLayers.values()].map(keys=>keys.length));
   const cardW=202,cardH=s.showNotes?150:130,gap=28,groupGap=56,layerGap=Math.max(110,Math.min(280,routes*7+24)),pad=35,positions=new Map(),orderIndex=new Map(info.ordered.map((p,i)=>[p.id,i]));
@@ -56,21 +61,40 @@ export function createDiagram(f,s,{query='',search=createSearch(query),namespace
   if(right){for(const pos of positions.values()){const x=pos.x,y=pos.y;pos.x=pad+(y-pad)/(cardH+layerGap)*(cardW+layerGap);pos.y=pad+(x-pad)/(cardW+gap)*(cardH+gap);}width=(maxRank+1)*cardW+maxRank*layerGap+pad*2;height=Math.max(cardH+pad*2,...[...positions.values()].map(p=>p.y+cardH+pad));}
   const font=s.font==='serif'?'Georgia, serif':s.font==='nepali'?'Noto Sans Devanagari, Nirmala UI, sans-serif':'system-ui, Segoe UI, sans-serif';
   const edgeDash=s.lineStyle==='dashed'?'7 4':s.lineStyle==='dotted'?'2 4':'';
-  // Each parent has a consistent style. Each couple and parent receives a
-  // separate track and child port so different lines never share a final stem.
+  // Merge parents beside their cards, then share one trunk and sibling rail.
+  // Every child receives just one arrow, styled by its recorded mother.
   const markers=parentStyles.map(style=>`<marker id="${style.marker}" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0 0L8 4L0 8" fill="${style.color}"/></marker>`).join('');
-  let edges='',nodes='';const spousePairs=new Set();
+  let edges='',nodes='';const spousePairs=new Set(),connections=[];
+  const path=(kind,d,style,attributes='',title='',arrowHead=false)=>`<path class="${kind}" ${attributes} d="${d}" stroke="${style.color}" fill="none" stroke-width="${style.weight}" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="${edgeDash}"${arrowHead?' marker-end="url(#'+style.marker+')"':''}>${title?'<title>'+esc(title)+'</title>':''}</path>`;
+  for(const [key,union] of unions){
+    const parents=union.parents.map(id=>by.get(id)),mothers=parents.filter(p=>p.gender==='F'),styleParent=mothers.length===1?mothers[0]:parents[0],style=styleBy.get(styleParent.id);
+    const ordered=[...parents].sort((a,b)=>{const first=positions.get(a.id),second=positions.get(b.id);return right?first.y-second.y:first.x-second.x;}),first=positions.get(ordered[0].id),last=positions.get(ordered.at(-1).id);
+    const edge=Math.max(...parents.map(p=>{const pos=positions.get(p.id);return right?pos.x+cardW:pos.y+cardH;}));
+    const cross=parents.length===1?(right?first.y+cardH/2:first.x+cardW/2):(right?(first.y+cardH+last.y)/2:(first.x+cardW+last.x)/2);
+    const junction=right?{x:edge+(parents.length>1?10:0),y:cross}:{x:cross,y:edge+(parents.length>1?10:0)};
+    if(parents.length>1){
+      for(const parent of parents){const pos=positions.get(parent.id),own=styleBy.get(parent.id),isFirst=parent.id===ordered[0].id;
+        const anchor=right?pos.y+(isFirst?cardH-12:12):pos.x+(isFirst?cardW-12:12);
+        const d=right?`M${pos.x+cardW},${anchor} H${junction.x} V${junction.y}`:`M${anchor},${pos.y+cardH} V${junction.y} H${junction.x}`;
+        edges+=path('parent-join',d,own,`data-union="${union.id}" data-parent="${esc(parent.id)}"`,parent.name+' · '+parents.map(p=>p.name).join(' + '));
+      }
+      edges+=`<circle class="family-junction" data-union="${union.id}" cx="${junction.x}" cy="${junction.y}" r="2.5" fill="${style.color}"/>`;
+    }
+    connections.push({parents:[...union.parents],children:union.children.map(p=>p.id),styleParent:styleParent.id,junction});
+    for(const [level,children] of union.levels){
+      const keys=branchLayers.get(level),fraction=(keys.indexOf(key)+1)/(keys.length+1),start=right?junction.x:junction.y;
+      const end=Math.min(...children.map(p=>{const pos=positions.get(p.id);return right?pos.x:pos.y;})),track=start+(end-start)*fraction;
+      const centers=children.map(p=>{const pos=positions.get(p.id);return right?pos.y+cardH/2:pos.x+cardW/2;}),origin=right?junction.y:junction.x,low=Math.min(origin,...centers),high=Math.max(origin,...centers);
+      const trunk=right?`M${junction.x},${junction.y} H${track} M${track},${low} V${high}`:`M${junction.x},${junction.y} V${track} M${low},${track} H${high}`;
+      edges+=path('family-branch',trunk,style,`data-union="${union.id}" data-style-parent="${esc(styleParent.id)}"`,parents.map(p=>p.name).join(' + ')+' · children');
+      for(const child of children){const pos=positions.get(child.id),center=right?pos.y+cardH/2:pos.x+cardW/2;
+        const d=right?`M${track},${center} H${pos.x}`:`M${center},${track} V${pos.y}`;
+        edges+=path('parent-edge',d,style,`data-child="${esc(child.id)}" data-track="${track}" data-parent="${esc(styleParent.id)}" data-union="${union.id}"`,parents.map(p=>p.name).join(' + ')+' → '+child.name,true);
+      }
+    }
+  }
   for(const p of f.people){
     const pos=positions.get(p.id);
-    for(const [index,id] of p.parents.entries()){
-      const par=positions.get(id),style=styleBy.get(id);if(!par||!style)continue;
-      const keys=branchLayers.get(members.get(groupOf.get(p.id)).rank),fraction=(keys.indexOf(branchKey(p,id))+1)/(keys.length+1);
-      const start=Math.max(...p.parents.map(id=>{const parent=positions.get(id);return right?parent.x+cardW:parent.y+cardH;}));
-      const track=start+((right?pos.x:pos.y)-start)*fraction;
-      const port=right?pos.y+cardH*(p.parents.length===1?.5:.4+index*.2):pos.x+cardW*(p.parents.length===1?.5:.4+index*.2);
-      const d=right?`M${par.x+cardW},${par.y+cardH/2} H${track} V${port} H${pos.x}`:`M${par.x+cardW/2},${par.y+cardH} V${track} H${port} V${pos.y}`;
-      edges+=`<path class="parent-edge" data-child="${esc(p.id)}" data-track="${track}" data-parent="${esc(id)}" d="${d}" stroke="${style.color}" fill="none" stroke-width="${style.weight}" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="${edgeDash}" marker-end="url(#${style.marker})"><title>${esc(style.name)} → ${esc(p.name)}</title></path>`;
-    }
     for(const id of p.spouses){const other=positions.get(id),pair=[p.id,id].sort().join('|');if(!other||spousePairs.has(pair))continue;spousePairs.add(pair);
       const start=right?{x:pos.x+cardW/2,y:Math.min(pos.y,other.y)+cardH}:{x:Math.min(pos.x,other.x)+cardW,y:pos.y+cardH/2};
       const end=right?{x:other.x+cardW/2,y:Math.max(pos.y,other.y)}:{x:Math.max(pos.x,other.x),y:other.y+cardH/2};
@@ -92,5 +116,5 @@ export function createDiagram(f,s,{query='',search=createSearch(query),namespace
     if(s.marriageBars&&m.marriage){content+=`<path d="M15 12h${Math.max(12,m.number.length*6)}" stroke="${color}"/>`;if(m.marriage>1)content+=`<path d="M15 9h${Math.max(12,m.number.length*6)}" stroke="${color}"/>`;}
     nodes+=`<g class="node${search.active?(match?(search.options.highlight?' match':''):(search.options.filter?' faded':'')):''}" data-search-person="${esc(p.id)}" data-person="${esc(p.id)}" tabindex="0" role="button" aria-label="Edit ${esc(p.name)}" transform="translate(${pos.x},${pos.y})"><title>${esc([p.name,p.label,p.notes].filter(Boolean).join(' · '))}</title><rect width="${cardW}" height="${cardH}" rx="${s.nodeStyle==='square'?0:9}" fill="#fff" stroke="${color}" stroke-opacity=".5"/><rect x="0" y="13" width="3" height="${cardH-26}" rx="1" fill="${color}"/>${content}</g>`;
   }
-  return {width,height,positions,parentStyles,warnings:[...new Set(warnings)],svg:`<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${esc(f.name)} kinship diagram" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" style="font-family:${font}"><title>${esc(f.name)}</title><desc>Distinct colors and line weights identify each parent; arrows point to their children. Matching swatches appear on parent cards. Dashed lines connect spouses. ${esc(f.description)}</desc><defs>${markers}</defs><rect width="100%" height="100%" fill="#f9fbf6"/>${edges}${nodes}</svg>`};
+  return {width,height,positions,parentStyles,connections,warnings:[...new Set(warnings)],svg:`<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${esc(f.name)} kinship diagram" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" style="font-family:${font}"><title>${esc(f.name)}</title><desc>Parents merge at a nearby junction. Siblings share one branch, with a single arrow per child in the recorded mother’s color. Matching style swatches appear on parent cards. Dashed lines connect spouses. ${esc(f.description)}</desc><defs>${markers}</defs><rect width="100%" height="100%" fill="#f9fbf6"/>${edges}${nodes}</svg>`};
 }
