@@ -16,6 +16,15 @@ test('renaming a person leaves relationships attached by ID',()=>{const f=sample
 test('duplicate names are distinct records',()=>{const f=family([person('a','Same'),person('b','Same',{parents:['a']})]);assert.doesNotThrow(()=>validateFamily(f));assert.equal(analyze(f).meta.get('b').number,'11');});
 test('all people including spouses appear once in table and diagram',()=>{const f=sample(),a=analyze(f),d=createDiagram(f,DEFAULTS);assert.equal(new Set(a.ordered.map(p=>p.id)).size,f.people.length);assert.equal((d.svg.match(/data-person=/g)||[]).length,f.people.length);assert.ok(d.svg.includes('spouse-edge'));assert.ok(d.svg.includes('parent-edge'));});
 test('both parents and spouses are drawn in either direction',()=>{const f=sample();for(const direction of ['down','right']){const d=createDiagram(f,{...DEFAULTS,direction});assert.ok(Number.isFinite(d.width)&&d.width>0);assert.ok(Number.isFinite(d.height)&&d.height>0);assert.ok(!/NaN|undefined/.test(d.svg));assert.equal((d.svg.match(/class="parent-edge"/g)||[]).length,f.people.reduce((n,p)=>n+p.parents.length,0));}});
+test('different couples and marriages use separate connector tracks',()=>{
+  const f=sample(),id=name=>f.people.find(p=>p.name===name).id;
+  for(const direction of ['down','right']){
+    const svg=createDiagram(f,{...DEFAULTS,direction}).svg,track=name=>svg.match(new RegExp(`data-child="${id(name)}" data-track="([^"]+)"`))[1];
+    assert.equal(track('Peter Smith'),track('Linda Smith'));
+    assert.notEqual(track('Peter Smith'),track('Hari Thapa'));
+    assert.notEqual(track('William Smith'),track('George Smith'));
+  }
+});
 test('cyclic ancestry, self relations and missing IDs are rejected',()=>{
   assert.throws(()=>validateFamily(family([person('a','A',{parents:['b']}),person('b','B',{parents:['a']})])),/Circular/);
   assert.throws(()=>validateFamily(family([person('a','A',{spouses:['a']})])),/own/);
