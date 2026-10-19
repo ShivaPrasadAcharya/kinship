@@ -165,10 +165,10 @@ function savePerson(ev){
   }catch(e){$('personError').textContent=e.message;}
 }
 function removePerson(id,key=editingKey){
-  editingKey=key;
-  const f=current(),p=f?.people.find(p=>p.id===id);if(!p){editingKey=null;return;}
+  const previousKey=editingKey;editingKey=key;
+  const f=current(),p=f?.people.find(p=>p.id===id);if(!p){editingKey=previousKey;return;}
   const count=f.people.filter(x=>x.parents.includes(id)||x.spouses.includes(id)).length;
-  if(!confirm(`Delete ${p.name}? ${count} linked record(s) will be disconnected. You can undo this.`)){editingKey=null;return;}
+  if(!confirm(`Delete ${p.name}? ${count} linked record(s) will be disconnected. You can undo this.`)){editingKey=previousKey;return;}
   checkpoint();const copy=structuredClone(f);deletePerson(copy,id);copy.warnings=[];saveFamily(copy);$('personDialog').close();editingKey=null;
   notice('Entry deleted and saved on this browser. Export this family and replace its JSON file to publish the correction.');
 }
