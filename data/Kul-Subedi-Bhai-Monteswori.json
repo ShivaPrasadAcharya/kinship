@@ -1,0 +1,110 @@
+{
+  "format": "kinsips",
+  "version": 2,
+  "exported": "2026-10-19T07:53:41.840Z",
+  "settings": {
+    "title": "Kinship",
+    "subtitle": "A place for every generation.",
+    "accent": "#356653",
+    "male": "#315a9a",
+    "female": "#a34369",
+    "unknown": "#66736d",
+    "font": "system",
+    "fontSize": 15,
+    "density": "comfortable",
+    "direction": "down",
+    "lineStyle": "solid",
+    "nodeStyle": "rounded",
+    "nameLabel": "Name",
+    "numberLabel": "Henry No.",
+    "relationLabel": "Relation to root",
+    "parentsLabel": "Parents",
+    "spouseLabel": "Spouse(s)",
+    "datesLabel": "Dates",
+    "notesLabel": "Comments",
+    "showNumbers": true,
+    "showRelations": true,
+    "showDates": true,
+    "showNotes": false,
+    "showGender": true,
+    "showSpouses": true,
+    "showParents": true,
+    "showLegend": true,
+    "view": "table",
+    "rootNumber": "1",
+    "deceasedSymbol": "✝",
+    "daughterLine": true,
+    "marriageBars": true
+  },
+  "tables": [
+    {
+      "id": "960ab354-6dc0-441a-82d6-99e680dd7354",
+      "name": "Kul Subedi Bhai (Monteswori)",
+      "description": "",
+      "people": [
+        {
+          "id": "9f616441-1a58-4fd3-91d3-f7c94df38825",
+          "name": "Kul",
+          "gender": "M",
+          "dead": false,
+          "parents": [],
+          "spouses": [
+            "23848333-4d74-46d2-866c-05cf8ab3aa91"
+          ],
+          "order": null,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
+        },
+        {
+          "id": "23848333-4d74-46d2-866c-05cf8ab3aa91",
+          "name": "Sita",
+          "gender": "F",
+          "dead": false,
+          "parents": [],
+          "spouses": [
+            "9f616441-1a58-4fd3-91d3-f7c94df38825"
+          ],
+          "order": null,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
+        },
+        {
+          "id": "0349f54b-d4b6-46d0-83ad-8c008f22b023",
+          "name": "Bidusi",
+          "gender": "F",
+          "dead": false,
+          "parents": [
+            "9f616441-1a58-4fd3-91d3-f7c94df38825",
+            "23848333-4d74-46d2-866c-05cf8ab3aa91"
+          ],
+          "spouses": [],
+          "order": null,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
+        },
+        {
+          "id": "211f3d5c-fb95-47a7-b4fb-5a2ea96f5519",
+          "name": "Brabim",
+          "gender": "M",
+          "dead": false,
+          "parents": [
+            "9f616441-1a58-4fd3-91d3-f7c94df38825",
+            "23848333-4d74-46d2-866c-05cf8ab3aa91"
+          ],
+          "spouses": [],
+          "order": null,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
+        }
+      ]
+    }
+  ]
+}
