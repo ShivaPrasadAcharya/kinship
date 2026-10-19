@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {createHash} from 'node:crypto';
 import {normalizeDocument,cleanSettings} from '../model.mjs';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..'),out=path.join(root,'_site');
 async function discover(dir,prefix=''){
@@ -22,7 +23,15 @@ for(const file of files){
   count+=d.tables.length;people+=d.tables.reduce((n,t)=>n+t.people.length,0);
   await fs.mkdir(path.dirname(path.join(out,'data',file)),{recursive:true});await fs.writeFile(path.join(out,'data',file),raw);
 }
-for(const file of ['index.html','styles.css','app.mjs','model.mjs','diagram.mjs','favicon.svg'])await fs.copyFile(path.join(root,file),path.join(out,file));
+const assets=['index.html','styles.css','app.mjs','model.mjs','diagram.mjs','favicon.svg'];
+const sources=await Promise.all(assets.map(file=>fs.readFile(path.join(root,file),'utf8')));
+const version=createHash('sha256').update(sources.join('\n')).digest('hex').slice(0,12);
+for(let i=0;i<assets.length;i++){
+  let source=sources[i];
+  if(assets[i].endsWith('.mjs'))source=source.replace(/(['"])(\.\/(?:model|diagram)\.mjs)\1/g,(_,quote,url)=>quote+url+'?v='+version+quote);
+  if(assets[i]==='index.html')source=source.replace(/(\.\/(?:app\.mjs|styles\.css|favicon\.svg))(["'])/g,'$1?v='+version+'$2');
+  await fs.writeFile(path.join(out,assets[i]),source);
+}
 const s=cleanSettings(JSON.parse(await fs.readFile(path.join(root,'site-settings.json'),'utf8')));
 await fs.writeFile(path.join(out,'site-settings.json'),JSON.stringify(s,null,2)+'\n');
 await fs.writeFile(path.join(out,'data/index.json'),JSON.stringify({version:1,files},null,2)+'\n');
