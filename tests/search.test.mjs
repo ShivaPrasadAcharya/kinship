@@ -30,6 +30,7 @@ test('field, gender and living/deceased filters share consistent matching',()=>{
   const f=family(),info=analyze(f),[p,s,c]=f.people;
   assert.ok(createSearch('2001',{field:'dates'}).matches(p,info));
   assert.ok(!createSearch('2001',{field:'name'}).matches(p,info));
+  assert.ok(renderGenealogyTable(f,DEFAULTS,info,createSearch('2001',{field:'dates',mode:'exact'})).html.includes('Born <mark>२००१</mark>'));
   assert.ok(createSearch('11',{field:'number',mode:'exact'}).matches(c,info));
   assert.ok(createSearch('',{gender:'F',status:'deceased'}).matches(s,info));
   assert.ok(!createSearch('',{gender:'F',status:'living'}).matches(s,info));
