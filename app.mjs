@@ -1,6 +1,6 @@
 import {DEFAULTS,RELATIONS,KINSHIP,uid,text,cleanSettings,cleanPerson,blankFamily,normalizeDocument,validateFamily,analyze,applyRelative,deletePerson,exportDocument,createSearch,cleanSearchOptions,sortPeople} from './model.mjs';
 import {createDiagram} from './diagram.mjs';
-import {renderGenealogyTable} from './table.mjs';
+import {renderGenealogyTable,orderTablePeople} from './table.mjs';
 const $=id=>document.getElementById(id), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const STORAGE='kinsips-workspace-v2';
 const published=new Map(), history=[];
@@ -64,11 +64,11 @@ function render(){
 function renderResults(){
   const all=disk.active==='all',items=all?families:(selected?[selected]:[]),view=disk.view||settings.view,search=createSearch($('search').value,searchOptions),total=items.reduce((n,item)=>n+item.family.people.length,0);
   $('tableView').setAttribute('aria-pressed',view==='table');$('diagramView').setAttribute('aria-pressed',view==='diagram');
-  $('tablePanel').hidden=view!=='table'||!total;$('diagramPanel').hidden=view!=='diagram'||!total;$('downloadSvg').hidden=view!=='diagram'||!total;$('emptyState').hidden=!!total;
+  $('tablePanel').hidden=view!=='table'||!total;$('diagramPanel').hidden=view!=='diagram'||!total;$('downloadSvg').hidden=view!=='diagram'||!total;$('emptyState').hidden=!!total;$('tableGuide').hidden=view!=='table'||!total;
   const old=searchMatches[matchIndex];searchMatches=[];let tables='',charts='',warnings=[],entries=[],generations=0;
   for(const [index,item] of items.entries()){
     const f=item.family,info=analyze(f,settings);generations=Math.max(generations,info.generations);
-    for(const p of info.ordered)if(search.active&&search.matches(p,info))searchMatches.push({key:item.key,id:p.id});
+    for(const p of (view==='table'?orderTablePeople(f,info):info.ordered))if(search.active&&search.matches(p,info))searchMatches.push({key:item.key,id:p.id});
     const table=renderGenealogyTable(f,settings,info,search);
     tables+=`<section class="family-result" data-family="${esc(item.key)}">${all?familyHeading(item):''}${table.html}</section>`;
     warnings.push(...(f.warnings||[]),...validateFamily(structuredClone(f)));
@@ -78,6 +78,8 @@ function renderResults(){
     }
   }
   $('tablePanel').innerHTML=tables;$('diagramCanvas').innerHTML=charts;
+  const parents=entries.reduce((n,entry)=>n+entry.parentStyles.length,0);$('parentLegend').hidden=!parents;
+  $('parentLegendContent').innerHTML=entries.map(entry=>`${all?'<h4>'+esc(entry.name)+'</h4>':''}<ul class="parent-key-list">${entry.parentStyles.map(parent=>`<li><svg width="44" height="14" viewBox="0 0 44 14" aria-hidden="true"><path d="M3 7h36" stroke="${parent.color}" stroke-width="${parent.weight}" stroke-linecap="round"/></svg><span>${esc(parent.name)}</span><small>${parent.children} child${parent.children===1?'':'ren'}</small></li>`).join('')}</ul>`).join('');
   if(entries.length){let y=0;const width=Math.max(...entries.map(e=>e.width)),height=entries.reduce((n,e)=>n+e.height+(all?55:0),0);
     const content=entries.map(e=>{const title=all?`<text x="20" y="${y+30}" font-size="20">${esc(e.name)}</text>`:'';y+=all?55:0;const group=e.svg.replace('<svg ',`<svg x="0" y="${y}" `);y+=e.height;return title+group;}).join('');
     diagram={width,height,svg:entries.length===1?entries[0].svg:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}">${content}</svg>`};setZoom(zoom);
@@ -86,7 +88,7 @@ function renderResults(){
   $('warnings').replaceChildren();warnings=[...new Set(warnings)];
   if(warnings.length){const details=document.createElement('details');const summary=document.createElement('summary');summary.textContent=`Check ${warnings.length} relationship note${warnings.length===1?'':'s'}`;details.append(summary);for(const message of warnings){const p=document.createElement('p');p.textContent=message;details.append(p);}$('warnings').append(details);}
   $('legend').hidden=!settings.showLegend||!total;
-  $('legend').innerHTML=`<span><i class="person-dot M"></i>Male</span><span><i class="person-dot F"></i>Female</span><span><i class="person-dot U"></i>Unknown</span><span>${esc(settings.deceasedSymbol)} Deceased</span>${settings.daughterLine?'<span><b class="number daughter">123</b> Daughter’s line</span>':''}${settings.marriageBars?'<span><b class="number bar1">123</b> 2nd marriage · double bar: 3rd or later</span>':''}`;
+  $('legend').innerHTML=`${view==='table'?'<span><b class="generation-badge">3</b> Generation number</span>':''}<span><i class="person-dot M"></i>Male</span><span><i class="person-dot F"></i>Female</span><span><i class="person-dot U"></i>Unknown</span><span>${esc(settings.deceasedSymbol)} Deceased</span>${settings.daughterLine?'<span><b class="number daughter">123</b> Daughter’s line</span>':''}${settings.marriageBars?'<span><b class="number bar1">123</b> 2nd marriage · double bar: 3rd or later</span>':''}`;
   $('matchCount').textContent=search.active?`${searchMatches.length} match${searchMatches.length===1?'':'es'} / ${total}`:`${total} people`;
   matchIndex=old?searchMatches.findIndex(p=>p.key===old.key&&p.id===old.id):-1;
   $('previousMatch').disabled=$('nextMatch').disabled=!searchMatches.length;updateMatchPosition();
