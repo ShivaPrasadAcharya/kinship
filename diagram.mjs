@@ -1,4 +1,4 @@
-import {analyze} from './model.mjs';
+import {analyze,createSearch} from './model.mjs';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
 function wrap(s,size=22,maxLines=3) {
   const lines=[];let line='';
@@ -9,8 +9,8 @@ function wrap(s,size=22,maxLines=3) {
   }
   if(line)lines.push(line);if(lines.length>maxLines){lines.length=maxLines;lines[maxLines-1]=[...lines[maxLines-1]].slice(0,size-1).join('')+'…';}return lines;
 }
-export function createDiagram(f,s,{query=''}={}) {
-  const info=analyze(f,s), by=info.by, members=new Map(), groupOf=new Map(), groups=[];
+export function createDiagram(f,s,{query='',search=createSearch(query),namespace=''}={}) {
+  const arrow='arrow'+namespace,info=analyze(f,s), by=info.by, members=new Map(), groupOf=new Map(), groups=[];
   // Connected spouse groups keep remarriages on the same generation.
   for(const p of f.people) {
     if(groupOf.has(p.id))continue;
@@ -62,7 +62,7 @@ export function createDiagram(f,s,{query=''}={}) {
     for(const id of p.parents){
       const par=positions.get(id);if(!par)continue;
       const d=right?`M${par.x+cardW},${par.y+cardH/2} H${track} V${pos.y+cardH/2} H${pos.x}`:`M${par.x+cardW/2},${par.y+cardH} V${track} H${pos.x+cardW/2} V${pos.y}`;
-      edges+=`<path class="parent-edge" data-child="${esc(p.id)}" data-track="${track}" d="${d}" stroke="#afbd9f" fill="none" stroke-width="1.3" stroke-dasharray="${edgeDash}" marker-end="url(#arrow)"/>`;
+      edges+=`<path class="parent-edge" data-child="${esc(p.id)}" data-track="${track}" d="${d}" stroke="#afbd9f" fill="none" stroke-width="1.3" stroke-dasharray="${edgeDash}" marker-end="url(#${arrow})"/>`;
     }
     for(const id of p.spouses){const other=positions.get(id),pair=[p.id,id].sort().join('|');if(!other||spousePairs.has(pair))continue;spousePairs.add(pair);
       const start=right?{x:pos.x+cardW/2,y:Math.min(pos.y,other.y)+cardH}:{x:Math.min(pos.x,other.x)+cardW,y:pos.y+cardH/2};
@@ -72,7 +72,7 @@ export function createDiagram(f,s,{query=''}={}) {
       const d=far?(right?`M${start.x},${start.y} h${cardW/2+14} V${end.y} H${end.x}`:`M${start.x},${start.y} v${cardH/2+18} H${end.x} V${end.y}`):`M${start.x},${start.y} L${end.x},${end.y}`;
       edges+=`<path class="spouse-edge" d="${d}" fill="none" stroke="#a8bba6" stroke-width="1.4" stroke-dasharray="5 4"/>`;
     }
-    const m=info.meta.get(p.id),color=s[p.gender==='M'?'male':p.gender==='F'?'female':'unknown'],match=!query||[p.name,p.label,p.notes,p.birth,p.death].join(' ').toLocaleLowerCase().includes(query),nameLines=wrap(p.name),dead=p.dead?` ${s.deceasedSymbol}`:'';
+    const m=info.meta.get(p.id),color=s[p.gender==='M'?'male':p.gender==='F'?'female':'unknown'],match=search.matches(p,info),nameLines=wrap(p.name),dead=p.dead?` ${s.deceasedSymbol}`:'';
     let y=49;
     let content=`<text x="15" y="25" class="num" fill="${color}" font-size="10">${s.showNumbers?esc(m.number):''}${esc(dead)}</text>`;
     for(const line of nameLines){content+=`<text class="name" x="15" y="${y}" fill="#334d36" font-size="14" font-weight="550">${esc(line)}</text>`;y+=17;}
@@ -82,7 +82,7 @@ export function createDiagram(f,s,{query=''}={}) {
     if(s.showNotes&&p.notes)content+=`<text class="detail" x="15" y="${cardH-13}" fill="#819074" font-size="10">${esc(wrap(p.notes,30,1)[0])}</text>`;
     if(s.daughterLine&&m.viaDaughter)content+=`<path d="M15 30h${Math.max(12,m.number.length*6)}" stroke="#599b67" stroke-width="2"/>`;
     if(s.marriageBars&&m.marriage){content+=`<path d="M15 12h${Math.max(12,m.number.length*6)}" stroke="${color}"/>`;if(m.marriage>1)content+=`<path d="M15 9h${Math.max(12,m.number.length*6)}" stroke="${color}"/>`;}
-    nodes+=`<g class="node${query?(match?' match':' faded'):''}" data-person="${esc(p.id)}" tabindex="0" role="button" aria-label="Edit ${esc(p.name)}" transform="translate(${pos.x},${pos.y})"><title>${esc([p.name,p.label,p.notes].filter(Boolean).join(' · '))}</title><rect width="${cardW}" height="${cardH}" rx="${s.nodeStyle==='square'?0:9}" fill="#fff" stroke="${color}" stroke-opacity=".5"/><rect x="0" y="13" width="3" height="${cardH-26}" rx="1" fill="${color}"/>${content}</g>`;
+    nodes+=`<g class="node${search.active?(match?(search.options.highlight?' match':''):(search.options.filter?' faded':'')):''}" data-search-person="${esc(p.id)}" data-person="${esc(p.id)}" tabindex="0" role="button" aria-label="Edit ${esc(p.name)}" transform="translate(${pos.x},${pos.y})"><title>${esc([p.name,p.label,p.notes].filter(Boolean).join(' · '))}</title><rect width="${cardW}" height="${cardH}" rx="${s.nodeStyle==='square'?0:9}" fill="#fff" stroke="${color}" stroke-opacity=".5"/><rect x="0" y="13" width="3" height="${cardH-26}" rx="1" fill="${color}"/>${content}</g>`;
   }
-  return {width,height,warnings:[...new Set(warnings)],svg:`<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${esc(f.name)} kinship diagram" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" style="font-family:${font}"><title>${esc(f.name)}</title><desc>Solid or customized parent-child connectors; dashed spouse connectors. ${esc(f.description)}</desc><defs><marker id="arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L8 4L0 8" fill="#afbd9f"/></marker></defs><rect width="100%" height="100%" fill="#f9fbf6"/>${edges}${nodes}</svg>`};
+  return {width,height,warnings:[...new Set(warnings)],svg:`<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${esc(f.name)} kinship diagram" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" style="font-family:${font}"><title>${esc(f.name)}</title><desc>Solid or customized parent-child connectors; dashed spouse connectors. ${esc(f.description)}</desc><defs><marker id="${arrow}" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L8 4L0 8" fill="#afbd9f"/></marker></defs><rect width="100%" height="100%" fill="#f9fbf6"/>${edges}${nodes}</svg>`};
 }

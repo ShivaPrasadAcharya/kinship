@@ -164,3 +164,70 @@ export function exportDocument(tables,settings) {
   if(!Array.isArray(tables)||tables.length!==1)throw Error('Export exactly one family per JSON file.');
   return {format:'kinsips',version:2,exported:new Date().toISOString(),settings:cleanSettings(settings),tables:tables.map(({warnings,...t})=>structuredClone(t))};
 }
+
+const searchSegmenter=typeof Intl.Segmenter==='function'?new Intl.Segmenter('ne',{granularity:'grapheme'}):null;
+// Search uses the same normalization and original-text ranges in every view.
+export const NepaliNormalizer={
+  vowelMap:{'ी':'ि','ू':'ु','ृ':'ि','ऋ':'रि'},
+  sibilantMap:{'श':'स','ष':'स'},nasalMap:{'ङ':'न','ण':'न','ञ':'न','ं':'न्'},vaBaMap:{'व':'ब'},
+  numberMap:{'०':'0','१':'1','२':'2','३':'3','४':'4','५':'5','६':'6','७':'7','८':'8','९':'9'},
+  _isDropped(ch,ignoreSpaces){return ch==='\u200D'||ch==='\u200C'||(ignoreSpaces&&/\s/.test(ch));},
+  _transformChar(ch){let s=ch;for(const map of [this.vowelMap,this.sibilantMap,this.nasalMap,this.vaBaMap,this.numberMap])s=map[s]??s;return s;},
+  _normalizeWithMap(value,opts={}){
+    const original=String(value??''),indexMap=[],endMap=[];let text='';
+    // Keep source offsets even when NFC changes the number of code units.
+    const parts=searchSegmenter?[...searchSegmenter.segment(original)].map(x=>({text:x.segment,index:x.index})):[...original.matchAll(/./gsu)].map(x=>({text:x[0],index:x.index}));
+    for(const part of parts)for(const ch of part.text.normalize('NFC')){
+      if(this._isDropped(ch,opts.ignoreSpaces))continue;
+      for(const out of this._transformChar(ch)){text+=out;for(let n=0;n<out.length;n++){indexMap.push(part.index);endMap.push(part.index+part.text.length);}}
+    }
+    return {text,indexMap,endMap};
+  },
+  normalize(value,opts={}){return this._normalizeWithMap(value,opts).text;},
+  isDevanagari(value){return /[\u0900-\u097F]/.test(value);},
+  mapToOriginal(pos,original,normalized,opts={}){const {indexMap}=this._normalizeWithMap(original,opts);return pos<=0?0:pos>=indexMap.length?original.length:indexMap[pos];},
+  search(query,value){return searchRanges(query,value,{normalize:true});},
+  matches(query,value){return this.search(query,value).length>0;}
+};
+export const SEARCH_DEFAULTS={field:'all',mode:'contains',gender:'all',status:'all',normalize:true,highlight:true,filter:true};
+export function cleanSearchOptions(raw={}){
+  const out={...SEARCH_DEFAULTS};
+  for(const [key,values] of Object.entries({field:['all','name','number','dates','comments','relation'],mode:['contains','words','exact'],gender:['all','M','F','U'],status:['all','living','deceased']}))if(values.includes(raw?.[key]))out[key]=raw[key];
+  for(const key of ['normalize','highlight','filter'])if(typeof raw?.[key]==='boolean')out[key]=raw[key];
+  return out;
+}
+function searchText(value,normalize){
+  if(normalize){const data=NepaliNormalizer._normalizeWithMap(value,{ignoreSpaces:true});data.text=data.text.toLocaleLowerCase();return data;}
+  const src=String(value??''),indexMap=[],endMap=[];let text='';
+  for(let i=0;i<src.length;){const ch=String.fromCodePoint(src.codePointAt(i)),fold=ch.toLocaleLowerCase();text+=fold;for(let n=0;n<fold.length;n++){indexMap.push(i);endMap.push(i+ch.length);}i+=ch.length;}
+  return {text,indexMap,endMap};
+}
+export function searchRanges(query,value,{normalize=true,mode='contains'}={}){
+  const source=searchText(value,normalize),terms=(mode==='words'?String(query).trim().split(/\s+/):[String(query).trim()]).map(q=>searchText(q,normalize).text).filter(Boolean);
+  if(!terms.length)return [];
+  const ranges=[];
+  for(const term of terms){let start=0,found=false;
+    while(start<=source.text.length){const i=source.text.indexOf(term,start);if(i<0)break;
+      if(mode!=='exact'||source.text===term){ranges.push({start:source.indexMap[i],end:source.endMap[i+term.length-1]});found=true;}
+      start=i+1;
+    }
+    if(!found)return [];
+  }
+  ranges.sort((a,b)=>a.start-b.start||a.end-b.end);const merged=[];
+  for(const range of ranges){const prev=merged.at(-1);if(prev&&range.start<=prev.end)prev.end=Math.max(prev.end,range.end);else merged.push({...range});}
+  return merged;
+}
+export function createSearch(query='',options={}){
+  const opts=cleanSearchOptions(options),q=String(query).trim(),hasQuery=!!searchText(q,opts.normalize).text;
+  const fields=(p,info)=>({name:p.name,number:info?.meta.get(p.id)?.number||'',dates:[p.birth,p.death].filter(Boolean).join(' · '),comments:p.notes,relation:[p.label,...(opts.field==='relation'?p.parents.map(id=>info?.by.get(id)?.name||''):[])].filter(Boolean).join(' · ')});
+  return {query:q,options:opts,active:hasQuery||opts.gender!=='all'||opts.status!=='all',
+    ranges:(value,field='all')=>hasQuery&&(opts.field==='all'||field===opts.field)?searchRanges(q,value,opts):[],
+    matches(p,info){
+      if(opts.gender!=='all'&&p.gender!==opts.gender)return false;
+      const dead=p.dead||!!p.death;if(opts.status==='deceased'&&!dead||opts.status==='living'&&dead)return false;
+      if(!hasQuery)return true;const values=fields(p,info);
+      return (opts.field==='all'?Object.values(values):[values[opts.field]]).some(value=>searchRanges(q,value,opts).length>0);
+    }
+  };
+}
+export function sortPeople(people){const collator=new Intl.Collator(['ne','en'],{sensitivity:'base',numeric:true});return [...people].sort((a,b)=>collator.compare(a.name,b.name)||a.id.localeCompare(b.id));}

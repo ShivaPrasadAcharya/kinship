@@ -1,23 +1,24 @@
-import {DEFAULTS,RELATIONS,KINSHIP,uid,text,cleanSettings,cleanPerson,blankFamily,normalizeDocument,validateFamily,analyze,applyRelative,deletePerson,exportDocument} from './model.mjs';
+import {DEFAULTS,RELATIONS,KINSHIP,uid,text,cleanSettings,cleanPerson,blankFamily,normalizeDocument,validateFamily,analyze,applyRelative,deletePerson,exportDocument,createSearch,cleanSearchOptions,sortPeople} from './model.mjs';
 import {createDiagram} from './diagram.mjs';
-import {renderGenealogyTable,matchesPerson} from './table.mjs';
+import {renderGenealogyTable} from './table.mjs';
 const $=id=>document.getElementById(id), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const STORAGE='kinsips-workspace-v2';
 const published=new Map(), history=[];
+let editingKey=null,searchMatches=[],matchIndex=-1,searchOptions=cleanSearchOptions();
 let disk={custom:[],edits:{},hidden:[],settings:null,active:'',view:null},settings={...DEFAULTS},families=[],selected=null,editing=null,pendingImport=[],zoom=1,diagram=null,loading=true,storageError=false;
-try {const raw=localStorage.getItem(STORAGE);if(raw){const d=JSON.parse(raw);disk={custom:Array.isArray(d.custom)?d.custom:[],edits:d.edits&&typeof d.edits==='object'?d.edits:{},hidden:Array.isArray(d.hidden)?d.hidden:[],settings:d.settings||null,active:text(d.active),view:d.view==='diagram'?'diagram':d.view==='table'?'table':null};
+try {const raw=localStorage.getItem(STORAGE);if(raw){const d=JSON.parse(raw);disk={custom:Array.isArray(d.custom)?d.custom:[],edits:d.edits&&typeof d.edits==='object'?d.edits:{},hidden:Array.isArray(d.hidden)?d.hidden:[],settings:d.settings||null,active:text(d.active),view:d.view==='diagram'?'diagram':d.view==='table'?'table':null,search:cleanSearchOptions(d.search)};
   for(const item of disk.custom)item.family=normalizeDocument({tables:[item.family]}).tables[0];
   for(const k of Object.keys(disk.edits))disk.edits[k]=normalizeDocument({tables:[disk.edits[k]]}).tables[0];
 }}catch{disk={custom:[],edits:{},hidden:[],settings:null,active:'',view:null};storageError=true;}
-settings=cleanSettings(disk.settings||{});
+settings=cleanSettings(disk.settings||{});searchOptions=cleanSearchOptions(disk.search);
 function notice(message,error=false){$('status').textContent=message;$('status').classList.toggle('error',error);}
 function persist(){try{localStorage.setItem(STORAGE,JSON.stringify(disk));storageError=false;$('saveState').textContent='Edits are saved on this browser. Export to keep a copy.';}catch{storageError=true;$('saveState').textContent='Browser storage is unavailable or full. Export JSON to keep your changes.';notice('Could not save in this browser. Export JSON to keep your changes.',true);}}
 function checkpoint(){history.push(JSON.stringify(disk));if(history.length>30)history.shift();$('undoButton').disabled=false;}
-function rebuild(){families=[];for(const [id,item] of published)if(!disk.hidden.includes(id))families.push({...item,key:id,family:disk.edits[id]||item.family});for(const item of disk.custom)families.push({...item,source:'Local family',family:item.family});selected=families.find(f=>f.key===disk.active)||families[0]||null;if(selected)disk.active=selected.key;}
-function current(){return selected?.family;}
+function rebuild(){families=[];for(const [id,item] of published)if(!disk.hidden.includes(id))families.push({...item,key:id,family:disk.edits[id]||item.family});for(const item of disk.custom)families.push({...item,source:'Local family',family:item.family});selected=families.find(f=>f.key===disk.active)||families[0]||null;if(selected&&disk.active!=='all')disk.active=selected.key;}
+function current(){return families.find(f=>f.key===editingKey)?.family||selected?.family;}
 function saveFamily(f){
-  validateFamily(f);const custom=disk.custom.find(x=>x.key===selected.key);
-  if(custom)custom.family=f;else disk.edits[selected.key]=f;
+  validateFamily(f);const key=editingKey||selected.key,custom=disk.custom.find(x=>x.key===key);
+  if(custom)custom.family=f;else disk.edits[key]=f;
   persist();rebuild();render();
 }
 function saveView(view){disk.view=view;persist();render();}
@@ -28,11 +29,11 @@ function setStyle(){
   document.body.classList.toggle('compact',settings.density==='compact');$('siteTitle').textContent=settings.title;$('siteSubtitle').textContent=settings.subtitle;document.title=(settings.title||'Kinship')+' · Family genealogy';
   for(const [k,v] of Object.entries(settings)){const el=$('customizeForm').elements.namedItem(k);if(el){if(el.type==='checkbox')el.checked=v;else el.value=v;}}
 }
-function renderTable(f,info,q){
-  const table=renderGenealogyTable(f,settings,info,q);$('tablePanel').innerHTML=table.html;
-  $('matchCount').textContent=q?`${table.matches} of ${f.people.length}`:'';
+function setZoom(value){
+  zoom=Math.min(2.5,Math.max(.15,value));
+  for(const svg of $('diagramCanvas').querySelectorAll('svg[data-chart]')){svg.setAttribute('width',Number(svg.dataset.width)*zoom);svg.setAttribute('height',Number(svg.dataset.height)*zoom);}
+  $('zoomValue').textContent=Math.round(zoom*100)+'%';scheduleChartScroll();
 }
-function setZoom(value){zoom=Math.min(2.5,Math.max(.15,value));const svg=$('diagramCanvas').querySelector('svg');if(svg&&diagram){svg.setAttribute('width',diagram.width*zoom);svg.setAttribute('height',diagram.height*zoom);}$('zoomValue').textContent=Math.round(zoom*100)+'%';scheduleChartScroll();}
 function fit(){if(!diagram)return;const viewport=$('diagramViewport');setZoom(Math.min(1,(viewport.clientWidth-45)/diagram.width,(viewport.clientHeight-40)/diagram.height));}
 let scrollFrame=null;
 function scheduleChartScroll(){if(scrollFrame!==null)return;scrollFrame=requestAnimationFrame(()=>{scrollFrame=null;updateChartScroll();});}
@@ -45,30 +46,64 @@ function updateChartScroll(){
   if(Math.abs(scroll.scrollLeft-viewport.scrollLeft)>.5)scroll.scrollLeft=viewport.scrollLeft;
   $('chartLeft').disabled=viewport.scrollLeft<1;$('chartRight').disabled=viewport.scrollLeft>=overflow-1;
 }
+function familyHeading(item){return `<header class="collection-heading"><div><h3>${esc(item.family.name)}</h3><p>${esc(item.family.description)}</p></div><div class="button-row noprint"><button data-add-family="${esc(item.key)}">＋ Add person</button><button data-export-family="${esc(item.key)}">Export family .json</button></div></header>`;}
 function render(){
   setStyle();rebuild();
-  setOptions('familySelect',families.length?families.map(f=>[f.key,f.family.name+(f.source==='Local family'?' · local':'')]):[['','No family selected']],disk.active);
-  const f=current(),view=disk.view||settings.view,q=$('search').value.trim().toLocaleLowerCase();
-  $('tableView').setAttribute('aria-pressed',view==='table');$('diagramView').setAttribute('aria-pressed',view==='diagram');
-  $('tablePanel').hidden=view!=='table'||!f?.people.length;$('diagramPanel').hidden=view!=='diagram'||!f?.people.length;$('downloadSvg').hidden=view!=='diagram'||!f?.people.length;
-  $('emptyState').hidden=!!f?.people.length;$('familySettings').hidden=!f;$('familySettingsButton').disabled=!f;$('exportFamily').disabled=!f;$('exportButton').disabled=!f;
-  $('familyTitle').textContent=f?.name||'Start your family story';$('familyDescription').textContent=f?.description||'';$('familySource').textContent=selected?.source||'FAMILY COLLECTION';$('familyName').value=f?.name||'';$('familyDesc').value=f?.description||'';
+  const all=disk.active==='all',f=selected?.family;
+  setOptions('familySelect',families.length?[['all','All families / tables'],...families.map(f=>[f.key,f.family.name+(f.source==='Local family'?' · local':'')])]:[['','No family selected']],disk.active);
+  $('familySettings').hidden=!f||all;$('familySettingsButton').disabled=!f||all;$('addPersonButton').disabled=all;
+  $('exportFamily').disabled=!f||all;$('exportButton').disabled=!f||all;
+  $('exportFamily').title=$('exportButton').title=all?'Use each family’s Export family .json button below':'Export the selected family only';
+  $('familyTitle').textContent=all?'All families / tables':f?.name||'Start your family story';$('familyDescription').textContent=all?'Explore every family together. Each family keeps its own records and JSON file.':f?.description||'';
+  $('familySource').textContent=all?'FAMILY COLLECTION':selected?.source||'FAMILY COLLECTION';$('familyName').value=f?.name||'';$('familyDesc').value=f?.description||'';
   $('resetFamily').hidden=!selected||!published.has(selected.key)||!disk.edits[selected.key];
-  $('warnings').replaceChildren();
-  if(f){
-    const info=analyze(f,settings);$('familyStats').innerHTML=`<div><b>${f.people.length}</b><span>people</span></div><div><b>${info.generations}</b><span>generations</span></div><div><b>${families.length}</b><span>families</span></div>`;
-    renderTable(f,info,q);
-    let extra=[];
-    if(view==='diagram'&&f.people.length){diagram=createDiagram(f,settings,{query:q});$('diagramCanvas').innerHTML=diagram.svg;extra=diagram.warnings;setZoom(zoom);$('matchCount').textContent=q?`${f.people.filter(p=>matchesPerson(p,q)).length} of ${f.people.length}`:'';}
-    const warnings=[...new Set([...(f.warnings||[]),...validateFamily(structuredClone(f)),...extra])];
-    if(warnings.length){const details=document.createElement('details');const summary=document.createElement('summary');summary.textContent=`Check ${warnings.length} relationship note${warnings.length===1?'':'s'}`;details.append(summary);for(const message of warnings){const p=document.createElement('p');p.textContent=message;details.append(p);}$('warnings').append(details);}
-  }else{$('familyStats').textContent='';$('tablePanel').replaceChildren();$('diagramCanvas').replaceChildren();$('matchCount').textContent='';}
-  $('legend').hidden=!settings.showLegend||!f?.people.length;
-  $('legend').innerHTML=`<span><i class="person-dot M"></i>Male</span><span><i class="person-dot F"></i>Female</span><span><i class="person-dot U"></i>Unknown</span><span>${esc(settings.deceasedSymbol)} Deceased</span>${settings.daughterLine?'<span><b class="number daughter">123</b> Daughter’s line</span>':''}${settings.marriageBars?'<span><b class="number bar1">123</b> 2nd marriage · double bar: 3rd or later</span>':''}`;
   $('undoButton').disabled=!history.length;
   if(storageError)$('saveState').textContent='Browser storage unavailable. Export JSON to keep changes.';
-  scheduleChartScroll();
+  renderResults();
 }
+function renderResults(){
+  const all=disk.active==='all',items=all?families:(selected?[selected]:[]),view=disk.view||settings.view,search=createSearch($('search').value,searchOptions),total=items.reduce((n,item)=>n+item.family.people.length,0);
+  $('tableView').setAttribute('aria-pressed',view==='table');$('diagramView').setAttribute('aria-pressed',view==='diagram');
+  $('tablePanel').hidden=view!=='table'||!total;$('diagramPanel').hidden=view!=='diagram'||!total;$('downloadSvg').hidden=view!=='diagram'||!total;$('emptyState').hidden=!!total;
+  const old=searchMatches[matchIndex];searchMatches=[];let tables='',charts='',warnings=[],entries=[],generations=0;
+  for(const [index,item] of items.entries()){
+    const f=item.family,info=analyze(f,settings);generations=Math.max(generations,info.generations);
+    for(const p of info.ordered)if(search.active&&search.matches(p,info))searchMatches.push({key:item.key,id:p.id});
+    const table=renderGenealogyTable(f,settings,info,search);
+    tables+=`<section class="family-result" data-family="${esc(item.key)}">${all?familyHeading(item):''}${table.html}</section>`;
+    warnings.push(...(f.warnings||[]),...validateFamily(structuredClone(f)));
+    if(view==='diagram'&&f.people.length){
+      const chart=createDiagram(f,settings,{search,namespace:'family'+index});entries.push({...chart,name:f.name});warnings.push(...chart.warnings);
+      charts+=`<section class="family-result" data-family="${esc(item.key)}">${all?familyHeading(item):''}${chart.svg.replace('<svg ',`<svg data-chart="${index}" data-width="${chart.width}" data-height="${chart.height}" `)}</section>`;
+    }
+  }
+  $('tablePanel').innerHTML=tables;$('diagramCanvas').innerHTML=charts;
+  if(entries.length){let y=0;const width=Math.max(...entries.map(e=>e.width)),height=entries.reduce((n,e)=>n+e.height+(all?55:0),0);
+    const content=entries.map(e=>{const title=all?`<text x="20" y="${y+30}" font-size="20">${esc(e.name)}</text>`:'';y+=all?55:0;const group=e.svg.replace('<svg ',`<svg x="0" y="${y}" `);y+=e.height;return title+group;}).join('');
+    diagram={width,height,svg:entries.length===1?entries[0].svg:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}">${content}</svg>`};setZoom(zoom);
+  }else diagram=null;
+  $('familyStats').innerHTML=items.length?`<div><b>${total}</b><span>people</span></div><div><b>${generations}</b><span>generations</span></div><div><b>${families.length}</b><span>families</span></div>`:'';
+  $('warnings').replaceChildren();warnings=[...new Set(warnings)];
+  if(warnings.length){const details=document.createElement('details');const summary=document.createElement('summary');summary.textContent=`Check ${warnings.length} relationship note${warnings.length===1?'':'s'}`;details.append(summary);for(const message of warnings){const p=document.createElement('p');p.textContent=message;details.append(p);}$('warnings').append(details);}
+  $('legend').hidden=!settings.showLegend||!total;
+  $('legend').innerHTML=`<span><i class="person-dot M"></i>Male</span><span><i class="person-dot F"></i>Female</span><span><i class="person-dot U"></i>Unknown</span><span>${esc(settings.deceasedSymbol)} Deceased</span>${settings.daughterLine?'<span><b class="number daughter">123</b> Daughter’s line</span>':''}${settings.marriageBars?'<span><b class="number bar1">123</b> 2nd marriage · double bar: 3rd or later</span>':''}`;
+  $('matchCount').textContent=search.active?`${searchMatches.length} match${searchMatches.length===1?'':'es'} / ${total}`:`${total} people`;
+  matchIndex=old?searchMatches.findIndex(p=>p.key===old.key&&p.id===old.id):-1;
+  $('previousMatch').disabled=$('nextMatch').disabled=!searchMatches.length;updateMatchPosition();
+  const filters=['field','mode','gender','status'].filter(k=>searchOptions[k]!==cleanSearchOptions()[k]).length;
+  $('filterBadge').textContent=filters;$('filterBadge').hidden=!filters;scheduleChartScroll();
+}
+function updateMatchPosition(scroll=false){
+  for(const node of document.querySelectorAll('.search-current'))node.classList.remove('search-current');
+  $('searchPosition').textContent=matchIndex<0?'':`${matchIndex+1} of ${searchMatches.length}`;
+  const match=searchMatches[matchIndex];if(!match)return;
+  const root=(disk.view||settings.view)==='diagram'?$('diagramCanvas'):$('tablePanel');
+  const family=[...root.querySelectorAll('[data-family]')].find(n=>n.dataset.family===match.key),node=family&&[...family.querySelectorAll('[data-search-person]')].find(n=>n.dataset.searchPerson===match.id);
+  if(node){node.classList.add('search-current');if(scroll)node.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center',inline:'center'});}
+}
+function navigateMatch(step){if(!searchMatches.length)return;matchIndex=matchIndex<0?(step>0?0:searchMatches.length-1):(matchIndex+step+searchMatches.length)%searchMatches.length;updateMatchPosition(true);}
+function readSearchOptions(){searchOptions=cleanSearchOptions({field:$('searchField').value,mode:$('searchMode').value,gender:$('searchGender').value,status:$('searchStatus').value,normalize:$('normalizeSearch').checked,highlight:$('highlightSearch').checked,filter:$('filterMatches').checked});disk.search=searchOptions;persist();matchIndex=-1;renderResults();}
+function syncSearchControls(){for(const [id,key] of [['searchField','field'],['searchMode','mode'],['searchGender','gender'],['searchStatus','status']])$(id).value=searchOptions[key];for(const [id,key] of [['normalizeSearch','normalize'],['highlightSearch','highlight'],['filterMatches','filter']])$(id).checked=searchOptions[key];}
 async function fetchJSON(path){const r=await fetch(path,{cache:'no-store'});if(!r.ok)throw Error(`Could not load ${path} (${r.status}).`);const str=await r.text();if(str.length>10000000)throw Error(`${path} exceeds the 10 MB file limit.`);return JSON.parse(str);}
 async function loadPublished(){
   let errors=[];
@@ -96,14 +131,15 @@ async function loadPublished(){
 function createFamily(){checkpoint();const f=blankFamily();const item={key:'local:'+uid(),family:f};disk.custom.push(item);disk.active=item.key;persist();rebuild();render();$('familySettings').open=true;$('familyName').focus();$('familyName').select();}
 function download(content,name,mime){const blob=new Blob([content],{type:mime}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);}
 function filename(name){return name.normalize('NFC').replace(/[^\p{L}\p{N}._-]+/gu,'-').replace(/^-+|-+$/g,'').slice(0,80)||'family';}
-function exportJSON(){
-  if(!current())return;
-  const source=published.get(selected.key),name=source?.sourceCount===1?source.source.split('/').pop():selected.exportName||filename(current().name)+'.json';
-  download(JSON.stringify(exportDocument([current()],settings),null,2),name,'application/json');
+function exportJSON(key){
+  const item=families.find(f=>f.key===key)||(disk.active!=='all'?selected:null);if(!item)return;
+  const source=published.get(item.key),name=source?.sourceCount===1?source.source.split('/').pop():item.exportName||filename(item.family.name)+'.json';
+  download(JSON.stringify(exportDocument([item.family],settings),null,2),name,'application/json');
   notice(source?.sourceCount===1?`Exported ${name} (one family). Replace data/${source.source} with this file to publish your corrections.`:`Exported ${name} (one family). Use Add .json files to publish it.`);
 }
-function optionsForPeople(exclude=''){return current().people.filter(p=>p.id!==exclude).map((p,i)=>[p.id,p.name+' · '+(p.gender||'U')+(current().people.some(other=>other.id!==p.id&&other.name===p.name)?' · '+p.id.slice(-6):'')]);}
-function openPerson(id=null){
+function optionsForPeople(exclude=''){return sortPeople(current().people.filter(p=>p.id!==exclude)).map(p=>[p.id,p.name+' · '+(p.gender||'U')+(current().people.some(other=>other.id!==p.id&&other.name===p.name)?' · '+p.id.slice(-6):'')]);}
+function openPerson(id=null,key=null){
+  editingKey=typeof key==='string'?key:null;
   if(!current()){createFamily();}
   editing=id;const f=current(),p=id?f.people.find(p=>p.id===id):cleanPerson({name:'',gender:'M'});
   $('personDialogTitle').textContent=id?'Edit person':'Add a person';$('personName').value=p.name;$('personGender').value=p.gender;$('personOrder').value=p.order||'';$('personDead').checked=p.dead;$('personBirth').value=p.birth;$('personDeath').value=p.death;$('personLabel').value=p.label;$('personNotes').value=p.notes;$('personError').textContent='';
@@ -128,11 +164,12 @@ function savePerson(ev){
     f.warnings=[];validateFamily(f);checkpoint();saveFamily(f);$('personDialog').close();notice(p.name+' saved on this browser. Export this family and replace its JSON file to publish the correction.');
   }catch(e){$('personError').textContent=e.message;}
 }
-function removePerson(id){
-  const f=current(),p=f?.people.find(p=>p.id===id);if(!p)return;
+function removePerson(id,key=editingKey){
+  editingKey=key;
+  const f=current(),p=f?.people.find(p=>p.id===id);if(!p){editingKey=null;return;}
   const count=f.people.filter(x=>x.parents.includes(id)||x.spouses.includes(id)).length;
-  if(!confirm(`Delete ${p.name}? ${count} linked record(s) will be disconnected. You can undo this.`))return;
-  checkpoint();const copy=structuredClone(f);deletePerson(copy,id);copy.warnings=[];saveFamily(copy);$('personDialog').close();
+  if(!confirm(`Delete ${p.name}? ${count} linked record(s) will be disconnected. You can undo this.`)){editingKey=null;return;}
+  checkpoint();const copy=structuredClone(f);deletePerson(copy,id);copy.warnings=[];saveFamily(copy);$('personDialog').close();editingKey=null;
   notice('Entry deleted and saved on this browser. Export this family and replace its JSON file to publish the correction.');
 }
 async function readImports(files){
@@ -141,7 +178,7 @@ async function readImports(files){
   if(errors.length){notice('Import cancelled. '+errors.join(' '),true);return;}
   if(!collected.length)return;pendingImport=collected;$('importSummary').textContent=`${files.length} file(s), ${collected.length} family/families, ${collected.reduce((n,x)=>n+x.family.people.length,0)} people. Existing families will be kept.`;$('importDialog').showModal();
 }
-$('familySelect').addEventListener('change',()=>{disk.active=$('familySelect').value;persist();$('search').value='';rebuild();render();if((disk.view||settings.view)==='diagram')requestAnimationFrame(fit);});
+$('familySelect').addEventListener('change',()=>{disk.active=$('familySelect').value;persist();rebuild();render();if((disk.view||settings.view)==='diagram')requestAnimationFrame(fit);});
 $('tableView').addEventListener('click',()=>saveView('table'));$('diagramView').addEventListener('click',()=>{saveView('diagram');requestAnimationFrame(fit);});
 for(const id of ['addPersonButton','emptyAdd'])$(id).addEventListener('click',()=>openPerson());
 $('familySettingsButton').addEventListener('click',()=>{$('familySettings').open=!$('familySettings').open;});
@@ -154,21 +191,33 @@ $('deleteFamily').addEventListener('click',()=>{if(!confirm('Delete “'+current
 $('resetFamily').addEventListener('click',()=>{if(!confirm('Replace local edits with this family’s published version? You can undo this.'))return;checkpoint();delete disk.edits[selected.key];persist();rebuild();render();notice('Published family restored.');});
 $('customizeForm').addEventListener('submit',ev=>{ev.preventDefault();checkpoint();const next={...settings};for(const k of Object.keys(DEFAULTS)){const el=ev.currentTarget.elements.namedItem(k);if(el)next[k]=el.type==='checkbox'?el.checked:typeof DEFAULTS[k]==='number'?Number(el.value):el.value;}settings=cleanSettings(next);disk.settings=settings;disk.view=settings.view;persist();render();notice('Customization applied. Included in your next JSON export.');if((disk.view||settings.view)==='diagram')requestAnimationFrame(fit);});
 $('resetStyle').addEventListener('click',()=>{checkpoint();settings={...DEFAULTS};disk.settings=settings;disk.view=settings.view;persist();render();notice('Default appearance restored.');});
-$('search').addEventListener('input',render);
-$('undoButton').addEventListener('click',()=>{if(!history.length)return;disk=JSON.parse(history.pop());settings=cleanSettings(disk.settings||settings);persist();rebuild();render();notice('Last change undone.');});
-$('tablePanel').addEventListener('click',ev=>{const del=ev.target.closest('[data-delete-person]');if(del){removePerson(del.dataset.deletePerson);return;}const b=ev.target.closest('[data-person]');if(b)openPerson(b.dataset.person);});
-$('diagramCanvas').addEventListener('click',ev=>{const b=ev.target.closest('[data-person]');if(b)openPerson(b.dataset.person);});
-$('diagramCanvas').addEventListener('keydown',ev=>{if(['Enter',' '].includes(ev.key)){const b=ev.target.closest('[data-person]');if(b){ev.preventDefault();openPerson(b.dataset.person);}}});
+$('search').addEventListener('input',()=>{matchIndex=-1;renderResults();});
+$('search').addEventListener('keydown',ev=>{if(ev.key==='Enter'){ev.preventDefault();navigateMatch(ev.shiftKey?-1:1);}if(ev.key==='Escape'){$('search').value='';matchIndex=-1;renderResults();}});
+$('previousMatch').addEventListener('click',()=>navigateMatch(-1));$('nextMatch').addEventListener('click',()=>navigateMatch(1));
+$('filterToggle').addEventListener('click',()=>{const open=$('searchFilters').hidden;$('searchFilters').hidden=!open;$('filterToggle').setAttribute('aria-expanded',open);});
+for(const id of ['searchField','searchMode','searchGender','searchStatus','normalizeSearch','highlightSearch','filterMatches'])$(id).addEventListener('change',readSearchOptions);
+$('clearSearch').addEventListener('click',()=>{$('search').value='';searchOptions=cleanSearchOptions();syncSearchControls();readSearchOptions();$('search').focus();});
+$('undoButton').addEventListener('click',()=>{if(!history.length)return;disk=JSON.parse(history.pop());settings=cleanSettings(disk.settings||settings);searchOptions=cleanSearchOptions(disk.search);syncSearchControls();persist();rebuild();render();notice('Last change undone.');});
+function resultClick(ev){
+  const family=ev.target.closest('[data-family]')?.dataset.family;
+  const exp=ev.target.closest('[data-export-family]');if(exp){exportJSON(exp.dataset.exportFamily);return;}
+  const add=ev.target.closest('[data-add-family]');if(add){openPerson(null,add.dataset.addFamily);return;}
+  const del=ev.target.closest('[data-delete-person]');if(del){removePerson(del.dataset.deletePerson,family);return;}
+  const b=ev.target.closest('[data-person]');if(b)openPerson(b.dataset.person,family);
+}
+$('tablePanel').addEventListener('click',resultClick);$('diagramCanvas').addEventListener('click',resultClick);
+$('diagramCanvas').addEventListener('keydown',ev=>{if(['Enter',' '].includes(ev.key)&&ev.target.closest('[data-person]')){ev.preventDefault();resultClick(ev);}});
+$('personDialog').addEventListener('close',()=>{editingKey=null;});
 $('personForm').addEventListener('submit',savePerson);$('personRelation').addEventListener('change',updateRelation);$('personTarget').addEventListener('change',updateRelation);
 for(const id of ['closePerson','cancelPerson'])$(id).addEventListener('click',()=>$('personDialog').close());
 $('deletePerson').addEventListener('click',()=>removePerson(editing));
 $('importButton').addEventListener('click',()=>$('importFiles').click());$('importFiles').addEventListener('change',ev=>{readImports([...ev.target.files]);ev.target.value='';});
 $('cancelImport').addEventListener('click',()=>{pendingImport=[];$('importDialog').close();});
 $('confirmImport').addEventListener('click',()=>{if(!pendingImport.length)return;checkpoint();for(const item of pendingImport){const added={key:'local:'+uid(),family:item.family,exportName:item.filename};disk.custom.push(added);disk.active=added.key;}settings=cleanSettings(pendingImport[0].settings);disk.settings=settings;disk.view=settings.view;const count=pendingImport.length;pendingImport=[];persist();rebuild();render();$('importDialog').close();notice(`Imported ${count} family/families. Existing families were kept.`);});
-$('exportButton').addEventListener('click',exportJSON);$('exportFamily').addEventListener('click',exportJSON);$('printButton').addEventListener('click',()=>window.print());
+$('exportButton').addEventListener('click',()=>exportJSON());$('exportFamily').addEventListener('click',()=>exportJSON());$('printButton').addEventListener('click',()=>window.print());
 $('zoomIn').addEventListener('click',()=>setZoom(zoom+.15));$('zoomOut').addEventListener('click',()=>setZoom(zoom-.15));$('fitDiagram').addEventListener('click',fit);
 $('fullscreen').addEventListener('click',async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await $('diagramPanel').requestFullscreen();setTimeout(fit,100);}catch{notice('Full screen is unavailable in this browser. Use the zoom controls instead.',true);}});
-$('downloadSvg').addEventListener('click',()=>{if(diagram)download(diagram.svg,filename(current().name)+'-kinship.svg','image/svg+xml');});
+$('downloadSvg').addEventListener('click',()=>{if(diagram)download(diagram.svg,filename(disk.active==='all'?'all-families':current().name)+'-kinship.svg','image/svg+xml');});
 document.addEventListener('keydown',ev=>{if((ev.ctrlKey||ev.metaKey)&&ev.key==='s'&&!$('personDialog').open){ev.preventDefault();if(current())exportJSON();}});
 $('goTop').addEventListener('click',ev=>{ev.preventDefault();window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});});
 $('goBottom').addEventListener('click',ev=>{ev.preventDefault();window.scrollTo({top:document.documentElement.scrollHeight,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});});
@@ -180,4 +229,4 @@ window.addEventListener('scroll',scheduleChartScroll,{passive:true});window.addE
 document.addEventListener('fullscreenchange',scheduleChartScroll);
 if('ResizeObserver' in window){const observer=new ResizeObserver(scheduleChartScroll);observer.observe($('diagramViewport'));observer.observe($('diagramCanvas'));}
 for(const term of [...new Set(Object.values(KINSHIP).flat())]){const option=document.createElement('option');option.value=term;$('kinshipLabels').append(option);}
-render();loadPublished();
+syncSearchControls();render();loadPublished();
