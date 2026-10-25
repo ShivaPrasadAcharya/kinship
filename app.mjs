@@ -2,7 +2,7 @@ import {DEFAULTS,RELATIONS,KINSHIP,uid,text,cleanSettings,cleanPerson,blankFamil
 import {createDiagram} from './diagram.mjs';
 import {renderGenealogyTable,orderTablePeople} from './table.mjs';
 const $=id=>document.getElementById(id), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const STORAGE='kinsips-workspace-v2';
+const STORAGE='kinship-workspace-v2';
 const published=new Map(), history=[];
 let editingKey=null,searchMatches=[],matchIndex=-1,searchOptions=cleanSearchOptions();
 let disk={custom:[],edits:{},hidden:[],settings:null,active:'',view:null},settings={...DEFAULTS},families=[],selected=null,editing=null,pendingImport=[],zoom=1,diagram=null,loading=true,storageError=false;

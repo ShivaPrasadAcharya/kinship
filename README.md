@@ -1,4 +1,4 @@
-# Kinsips · Family genealogy
+# kinship · Family genealogy
 
 A clean, customizable genealogy editor with a shared table and kinship diagram. No external dependencies, tracking scripts, API keys, or runtime backend.
 
@@ -36,7 +36,7 @@ New exports use stable IDs:
 
 ```json
 {
-  "format": "kinsips",
+  "format": "kinship",
   "version": 2,
   "tables": [{
     "id": "family-1",

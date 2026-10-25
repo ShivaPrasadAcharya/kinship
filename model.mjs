@@ -115,7 +115,7 @@ export function normalizeDocument(d,filename='Family') {
     f.warnings=validateFamily(f);return f;
   });
   const ids=new Set();for(const f of tables){if(ids.has(f.id))f.id=uid();ids.add(f.id);}
-  return {format:'kinsips',version:2,settings:cleanSettings(d.settings),tables};
+  return {format:'kinship',version:2,settings:cleanSettings(d.settings),tables};
 }
 export const henryDigit=n=>n<=9?String(n):n===10?'X':n<=36?String.fromCharCode(65+n-11):`[${n}]`;
 export function analyze(f,settings=DEFAULTS) {
@@ -162,7 +162,7 @@ export function applyRelative(f,person,{relation='ancestor',target='',otherParen
 export function deletePerson(f,id) { f.people=f.people.filter(p=>p.id!==id);for(const p of f.people){p.parents=p.parents.filter(x=>x!==id);p.spouses=p.spouses.filter(x=>x!==id);} }
 export function exportDocument(tables,settings) {
   if(!Array.isArray(tables)||tables.length!==1)throw Error('Export exactly one family per JSON file.');
-  return {format:'kinsips',version:2,exported:new Date().toISOString(),settings:cleanSettings(settings),tables:tables.map(({warnings,...t})=>structuredClone(t))};
+  return {format:'kinship',version:2,exported:new Date().toISOString(),settings:cleanSettings(settings),tables:tables.map(({warnings,...t})=>structuredClone(t))};
 }
 
 const searchSegmenter=typeof Intl.Segmenter==='function'?new Intl.Segmenter('ne',{granularity:'grapheme'}):null;
