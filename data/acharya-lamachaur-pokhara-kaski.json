@@ -1,6 +1,41 @@
 {
   "format": "kinsips",
   "version": 2,
+  "exported": "2026-10-25T08:12:38.108Z",
+  "settings": {
+    "title": "Kinship",
+    "subtitle": "A place for every generation.",
+    "accent": "#356653",
+    "male": "#315a9a",
+    "female": "#a34369",
+    "unknown": "#66736d",
+    "font": "system",
+    "fontSize": 15,
+    "density": "comfortable",
+    "direction": "down",
+    "lineStyle": "solid",
+    "nodeStyle": "rounded",
+    "nameLabel": "Name",
+    "numberLabel": "Henry No.",
+    "relationLabel": "Relation to root",
+    "parentsLabel": "Parents",
+    "spouseLabel": "Spouse(s)",
+    "datesLabel": "Dates",
+    "notesLabel": "Comments",
+    "showNumbers": true,
+    "showRelations": true,
+    "showDates": true,
+    "showNotes": false,
+    "showGender": true,
+    "showSpouses": true,
+    "showParents": true,
+    "showLegend": true,
+    "view": "table",
+    "rootNumber": "1",
+    "deceasedSymbol": "✝",
+    "daughterLine": true,
+    "marriageBars": true
+  },
   "tables": [
     {
       "id": "acharya-lamachaur-pokhara-kaski",
@@ -11,957 +46,1408 @@
           "id": "la-1",
           "name": "रामकृष्ण",
           "gender": "M",
+          "dead": false,
           "parents": [],
           "spouses": [],
-          "order": 1
+          "order": 1,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-1",
           "name": "शिवलाल",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1"
           ],
           "spouses": [],
-          "order": 1
+          "order": 1,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2",
           "name": "शशिधर",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1"
           ],
           "spouses": [],
-          "order": 2
+          "order": 2,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-1-1",
           "name": "बासु पाध्या",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-1"
           ],
           "spouses": [],
           "order": 1,
+          "birth": "",
+          "death": "",
+          "label": "",
           "notes": "स्रोतमा निःसन्तान उल्लेख छ।"
         },
         {
           "id": "la-1-1-2",
           "name": "तुलाराम",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-1"
           ],
           "spouses": [],
-          "order": 2
+          "order": 2,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-1",
           "name": "कान्तु",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2"
           ],
           "spouses": [],
           "order": 1,
+          "birth": "",
+          "death": "",
+          "label": "",
           "notes": "स्रोतमा निःसन्तान उल्लेख छ।"
         },
         {
           "id": "la-1-2-2",
           "name": "शंखर",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2"
           ],
           "spouses": [],
-          "order": 2
+          "order": 2,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-3",
           "name": "मित्रलाल",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2"
           ],
           "spouses": [],
-          "order": 3
+          "order": 3,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-4",
           "name": "हरिवंश",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2"
           ],
           "spouses": [],
-          "order": 4
+          "order": 4,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-1-2-1",
           "name": "गजाधर",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-1-2"
           ],
           "spouses": [],
           "order": 1,
+          "birth": "",
+          "death": "",
+          "label": "",
           "notes": "स्रोतमा निःसन्तान उल्लेख छ।"
         },
         {
           "id": "la-1-1-2-2",
           "name": "कलाधर",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-1-2"
           ],
           "spouses": [],
-          "order": 2
+          "order": 2,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-1-2-3",
           "name": "त्रिलोचन",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-1-2"
           ],
           "spouses": [],
           "order": 3,
+          "birth": "",
+          "death": "",
+          "label": "",
           "notes": "स्रोतमा निःसन्तान उल्लेख छ।"
         },
         {
           "id": "la-1-2-2-1",
           "name": "रघुनाथ",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-2"
           ],
           "spouses": [],
-          "order": 1
+          "order": 1,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-2-2",
           "name": "काशिनाथ",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-2"
           ],
           "spouses": [],
           "order": 2,
+          "birth": "",
+          "death": "",
+          "label": "",
           "notes": "स्रोतमा निःसन्तान उल्लेख छ।"
         },
         {
           "id": "la-1-2-2-3",
           "name": "भक्तु",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-2"
           ],
           "spouses": [],
           "order": 3,
+          "birth": "",
+          "death": "",
+          "label": "",
           "notes": "नामको संयुक्ताक्षर चित्रमा सानो भएकाले ‘भक्तु’ पढिएको छ; वर्तनी पुष्टि आवश्यक।"
         },
         {
           "id": "la-1-2-3-1",
           "name": "बद्री",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-3"
           ],
           "spouses": [],
           "order": 1,
+          "birth": "",
+          "death": "",
+          "label": "",
           "notes": "स्रोतमा निःसन्तान उल्लेख छ।"
         },
         {
           "id": "la-1-2-3-2",
           "name": "चूडामणि",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-3"
           ],
           "spouses": [],
-          "order": 2
+          "order": 2,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-3-3",
           "name": "त्रिलोचन",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-3"
           ],
           "spouses": [],
-          "order": 3
+          "order": 3,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-3-4",
           "name": "प्रजापति",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-3"
           ],
           "spouses": [],
-          "order": 4
+          "order": 4,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-4-1",
           "name": "श्रीपति",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-4"
           ],
           "spouses": [],
-          "order": 1
+          "order": 1,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-4-2",
           "name": "मतिलाल",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-4"
           ],
           "spouses": [],
           "order": 2,
+          "birth": "",
+          "death": "",
+          "label": "",
           "notes": "स्रोतमा निःसन्तान उल्लेख छ।"
         },
         {
           "id": "la-1-1-2-2-1",
           "name": "खिमलाल",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-1-2-2"
           ],
           "spouses": [],
-          "order": 1
+          "order": 1,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-2-1-1",
           "name": "नन्दलाल",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-2-1"
           ],
           "spouses": [],
           "order": 1,
+          "birth": "",
+          "death": "",
+          "label": "",
           "notes": "स्रोतमा निःसन्तान उल्लेख छ।"
         },
         {
           "id": "la-1-2-2-1-2",
           "name": "शिवराज",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-2-1"
           ],
           "spouses": [],
-          "order": 2
+          "order": 2,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-2-1-3",
           "name": "अमरराज",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-2-1"
           ],
           "spouses": [],
-          "order": 3
+          "order": 3,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-2-1-4",
           "name": "हुमराज",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-2-1"
           ],
           "spouses": [],
-          "order": 4
+          "order": 4,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-2-3-1",
           "name": "कलाधर",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-2-3"
           ],
           "spouses": [],
-          "order": 1
+          "order": 1,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-3-2-1",
           "name": "गणपति",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-3-2"
           ],
           "spouses": [],
-          "order": 1
+          "order": 1,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-3-2-2",
           "name": "धनपति",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-3-2"
           ],
           "spouses": [],
-          "order": 2
+          "order": 2,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-3-3-1",
           "name": "विद्याधर",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-3-3"
           ],
           "spouses": [],
-          "order": 1
+          "order": 1,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-3-4-1",
           "name": "दुर्गादत्त",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-3-4"
           ],
           "spouses": [],
-          "order": 1
+          "order": 1,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-4-1-1",
           "name": "रुद्रनाथ",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-4-1"
           ],
           "spouses": [],
-          "order": 1
+          "order": 1,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-4-1-2",
           "name": "धनपति",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-4-1"
           ],
           "spouses": [],
           "order": 2,
+          "birth": "",
+          "death": "",
+          "label": "",
           "notes": "स्रोतमा निःसन्तान उल्लेख छ।"
         },
         {
           "id": "la-1-2-4-1-3",
           "name": "टीकाराम",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-4-1"
           ],
           "spouses": [],
-          "order": 3
+          "order": 3,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-4-1-4",
           "name": "तारापति",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-4-1"
           ],
           "spouses": [],
           "order": 4,
+          "birth": "",
+          "death": "",
+          "label": "",
           "notes": "स्रोतमा निःसन्तान उल्लेख छ।"
         },
         {
           "id": "la-1-2-4-1-5",
           "name": "चैतभक्त",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-4-1"
           ],
           "spouses": [],
           "order": 5,
+          "birth": "",
+          "death": "",
+          "label": "",
           "notes": "स्रोतमा निःसन्तान उल्लेख छ।"
         },
         {
           "id": "la-1-1-2-2-1-1",
           "name": "बाबुराम",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-1-2-2-1"
           ],
           "spouses": [],
-          "order": 1
+          "order": 1,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-1-2-2-1-2",
           "name": "शिवहरि",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-1-2-2-1"
           ],
           "spouses": [],
-          "order": 2
+          "order": 2,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-2-1-2-1",
           "name": "केदार",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-2-1-2"
           ],
           "spouses": [],
-          "order": 1
+          "order": 1,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-2-1-4-1",
           "name": "भूपराज",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-2-1-4"
           ],
           "spouses": [],
           "order": 1,
+          "birth": "",
+          "death": "",
+          "label": "",
           "notes": "नामको उ/ऊ मात्रा चित्रमा स्पष्ट छैन; ‘भूपराज’ पढिएको छ। वर्तनी पुष्टि आवश्यक।"
         },
         {
           "id": "la-1-2-2-1-4-2",
           "name": "शालिकराम",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-2-1-4"
           ],
           "spouses": [],
-          "order": 2
+          "order": 2,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-2-3-1-1",
           "name": "कमल",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-2-3-1"
           ],
           "spouses": [],
           "order": 1,
+          "birth": "",
+          "death": "",
+          "label": "",
           "notes": "स्रोतमा स्थानसम्बन्धी टिप्पणी: ‘नुवाकोट पाँचसय खोला’।"
         },
         {
           "id": "la-1-2-2-3-1-2",
           "name": "कान्छो",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-2-3-1"
           ],
           "spouses": [],
           "order": 2,
+          "birth": "",
+          "death": "",
+          "label": "",
           "notes": "स्रोतमा व्यक्तिगत नामको सट्टा ‘कान्छो’ उल्लेख छ।"
         },
         {
           "id": "la-1-2-3-2-1-1",
           "name": "खिमलाल",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-3-2-1"
           ],
           "spouses": [],
-          "order": 1
+          "order": 1,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-3-2-1-2",
           "name": "गुरुदत्त",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-3-2-1"
           ],
           "spouses": [],
-          "order": 2
+          "order": 2,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-3-2-2-1",
           "name": "बालयोगी स्वामी नारायणनन्द",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-3-2-2"
           ],
           "spouses": [],
-          "order": 1
+          "order": 1,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-3-3-1-1",
           "name": "सुन्दर",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-3-3-1"
           ],
           "spouses": [],
-          "order": 1
+          "order": 1,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-3-3-1-2",
           "name": "दीनानाथ",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-3-3-1"
           ],
           "spouses": [],
-          "order": 2
+          "order": 2,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-3-3-1-3",
           "name": "हरिप्रसाद",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-3-3-1"
           ],
           "spouses": [],
-          "order": 3
+          "order": 3,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-3-3-1-4",
           "name": "केशव",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-3-3-1"
           ],
           "spouses": [],
-          "order": 4
+          "order": 4,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-3-3-1-5",
           "name": "ऋषिराम",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-3-3-1"
           ],
           "spouses": [],
-          "order": 5
+          "order": 5,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-3-4-1-1",
           "name": "गजाधर",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-3-4-1"
           ],
           "spouses": [],
-          "order": 1
+          "order": 1,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-4-1-1-1",
           "name": "बालकृष्ण",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-4-1-1"
           ],
           "spouses": [],
-          "order": 1
+          "order": 1,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-4-1-1-2",
           "name": "दुर्गादत्त",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-4-1-1"
           ],
           "spouses": [],
-          "order": 2
+          "order": 2,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-4-1-1-3",
           "name": "बोधराज",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-4-1-1"
           ],
           "spouses": [],
-          "order": 3
+          "order": 3,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-4-1-1-4",
           "name": "अग्निधर",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-4-1-1"
           ],
           "spouses": [],
           "order": 4,
+          "birth": "",
+          "death": "",
+          "label": "",
           "notes": "चित्रमा संयुक्ताक्षर अस्पष्ट छ; ‘अग्निधर’ पढिएको छ (‘अनिधर’ जस्तो पनि देखिन्छ)। नामको वर्तनी पुष्टि आवश्यक।"
         },
         {
           "id": "la-1-2-4-1-1-5",
           "name": "पूर्णखर",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-4-1-1"
           ],
           "spouses": [],
           "order": 5,
+          "birth": "",
+          "death": "",
+          "label": "",
           "notes": "दुवै चित्रमा ‘पूर्णखर’ जस्तो देखिने वर्तनी राखिएको छ; नामको वर्तनी पुष्टि आवश्यक।"
         },
         {
           "id": "la-1-2-4-1-1-6",
           "name": "डिल्लीरमण",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-4-1-1"
           ],
           "spouses": [],
-          "order": 6
+          "order": 6,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-4-1-3-1",
           "name": "दण्डपाणि",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-4-1-3"
           ],
           "spouses": [],
           "order": 1,
+          "birth": "",
+          "death": "",
+          "label": "",
           "notes": "नामसँगै हस्तलिखित टिप्पणी: ‘रामजीका बुबा’।"
         },
         {
           "id": "la-1-1-2-2-1-1-1",
           "name": "राजु",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-1-2-2-1-1"
           ],
           "spouses": [],
-          "order": 1
+          "order": 1,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-1-2-2-1-1-2",
           "name": "आशीष",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-1-2-2-1-1"
           ],
           "spouses": [],
-          "order": 2
+          "order": 2,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-1-2-2-1-2-1",
           "name": "विवेक",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-1-2-2-1-2"
           ],
           "spouses": [],
-          "order": 1
+          "order": 1,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-2-1-2-1-1",
           "name": "ईश्वर",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-2-1-2-1"
           ],
           "spouses": [],
-          "order": 1
+          "order": 1,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-2-1-2-1-2",
           "name": "प्रकाश",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-2-1-2-1"
           ],
           "spouses": [],
-          "order": 2
+          "order": 2,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-2-1-2-1-3",
           "name": "नवीन",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-2-1-2-1"
           ],
           "spouses": [],
-          "order": 3
+          "order": 3,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-2-1-4-1-1",
           "name": "होमनाथ",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-2-1-4-1"
           ],
           "spouses": [],
-          "order": 1
+          "order": 1,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-3-2-1-2-1",
           "name": "शंकर",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-3-2-1-2"
           ],
           "spouses": [],
-          "order": 1
+          "order": 1,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-3-3-1-1-1",
           "name": "हरि",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-3-3-1-1"
           ],
           "spouses": [],
-          "order": 1
+          "order": 1,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-3-3-1-1-2",
           "name": "कृष्ण",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-3-3-1-1"
           ],
           "spouses": [],
-          "order": 2
+          "order": 2,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-3-3-1-2-1",
           "name": "जगन्नाथ",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-3-3-1-2"
           ],
           "spouses": [],
-          "order": 1
+          "order": 1,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-3-3-1-2-2",
           "name": "जयन्त",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-3-3-1-2"
           ],
           "spouses": [],
-          "order": 2
+          "order": 2,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-3-3-1-3-1",
           "name": "अनुज",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-3-3-1-3"
           ],
           "spouses": [],
-          "order": 1
+          "order": 1,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-3-3-1-3-2",
           "name": "मनोज",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-3-3-1-3"
           ],
           "spouses": [],
-          "order": 2
+          "order": 2,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-3-3-1-4-1",
           "name": "श्रीराम",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-3-3-1-4"
           ],
           "spouses": [],
-          "order": 1
+          "order": 1,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-3-3-1-5-1",
           "name": "राजेन्द्र",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-3-3-1-5"
           ],
           "spouses": [],
-          "order": 1
+          "order": 1,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-3-4-1-1-1",
           "name": "भरत",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-3-4-1-1"
           ],
           "spouses": [],
-          "order": 1
+          "order": 1,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-3-4-1-1-2",
           "name": "लक्ष्मण",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-3-4-1-1"
           ],
           "spouses": [],
-          "order": 2
+          "order": 2,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-3-4-1-1-3",
           "name": "रामचन्द्र",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-3-4-1-1"
           ],
           "spouses": [],
-          "order": 3
+          "order": 3,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-4-1-1-1-1",
           "name": "नारायण",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-4-1-1-1"
           ],
           "spouses": [],
-          "order": 1
+          "order": 1,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-4-1-1-1-2",
           "name": "बाबुराम",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-4-1-1-1"
           ],
           "spouses": [],
-          "order": 2
+          "order": 2,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-4-1-1-2-1",
           "name": "कमल",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-4-1-1-2"
           ],
           "spouses": [],
-          "order": 1
+          "order": 1,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-4-1-1-2-2",
           "name": "नारायण",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-4-1-1-2"
           ],
           "spouses": [],
-          "order": 2
+          "order": 2,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-4-1-1-2-3",
           "name": "मनोज",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-4-1-1-2"
           ],
           "spouses": [],
-          "order": 3
+          "order": 3,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-4-1-1-3-1",
           "name": "भेषराज",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-4-1-1-3"
           ],
           "spouses": [],
-          "order": 1
+          "order": 1,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-4-1-1-4-1",
           "name": "कृष्ण",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-4-1-1-4"
           ],
           "spouses": [],
-          "order": 1
+          "order": 1,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-4-1-1-5-1",
           "name": "ऋषि",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-4-1-1-5"
           ],
           "spouses": [],
-          "order": 1
+          "order": 1,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-4-1-1-5-2",
           "name": "केशव",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-4-1-1-5"
           ],
           "spouses": [],
-          "order": 2
+          "order": 2,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-4-1-1-5-3",
           "name": "माधव",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-4-1-1-5"
           ],
           "spouses": [],
-          "order": 3
+          "order": 3,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-4-1-1-6-1",
           "name": "प्रेम",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-4-1-1-6"
           ],
           "spouses": [],
-          "order": 1
+          "order": 1,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-4-1-1-6-2",
           "name": "राजु",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-4-1-1-6"
           ],
           "spouses": [],
-          "order": 2
+          "order": 2,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-4-1-3-1-1",
           "name": "रामजी",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-4-1-3-1"
           ],
           "spouses": [],
-          "order": 1
+          "order": 1,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-4-1-3-1-2",
           "name": "काशिराज",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-4-1-3-1"
           ],
           "spouses": [],
-          "order": 2
+          "order": 2,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-4-1-3-1-3",
           "name": "शिव",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-4-1-3-1"
           ],
           "spouses": [],
-          "order": 3
+          "order": 3,
+          "birth": "",
+          "death": "",
+          "label": "",
+          "notes": ""
         },
         {
           "id": "la-1-2-4-1-3-1-4",
           "name": "नारायण",
           "gender": "M",
+          "dead": false,
           "parents": [
             "la-1-2-4-1-3-1"
           ],
           "spouses": [],
           "order": 4,
+          "birth": "",
+          "death": "",
+          "label": "",
           "notes": "स्रोतमा कोष्ठकमा ‘नारन’ उल्लेख छ।"
         }
       ]

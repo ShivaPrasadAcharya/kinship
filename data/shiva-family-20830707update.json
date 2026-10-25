@@ -1,7 +1,7 @@
 {
   "format": "kinsips",
   "version": 2,
-  "exported": "2026-10-25T06:40:29.130Z",
+  "exported": "2026-10-25T08:15:09.796Z",
   "settings": {
     "title": "Kinship",
     "subtitle": "A place for every generation.",
@@ -39,7 +39,7 @@
   "tables": [
     {
       "id": "202501a1-d4af-4776-a082-43f47ad8dff3",
-      "name": "shiva's_family_20830707update",
+      "name": "shiva_family-20830707update",
       "description": "",
       "people": [
         {
