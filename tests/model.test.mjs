@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {DEFAULTS,cleanSettings,normalizeDocument,cleanPerson,validateFamily,analyze,applyRelative,deletePerson,exportDocument,henryDigit} from '../model.mjs';
 import {createDiagram} from '../diagram.mjs';
-const sample=()=>normalizeDocument(JSON.parse(fs.readFileSync(new URL('../data/smith-family.json',import.meta.url)))).tables[0];
+const sample=()=>normalizeDocument(JSON.parse(fs.readFileSync(new URL('./fixtures/smith-family.json',import.meta.url)))).tables[0];
 const person=(id,name,extra={})=>cleanPerson({id,name,...extra});
 const family=(people)=>({id:'test',name:'Test family',description:'',people,warnings:[]});
 test('original JSON preserves people, two marriages and Henry numbering',()=>{

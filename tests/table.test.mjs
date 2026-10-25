@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {DEFAULTS,analyze,cleanSettings,normalizeDocument,exportDocument,deletePerson,validateFamily} from '../model.mjs';
 import {groupTablePeople,renderGenealogyTable} from '../table.mjs';
-const sample=()=>normalizeDocument(JSON.parse(fs.readFileSync(new URL('../data/smith-family.json',import.meta.url)))).tables[0];
+const sample=()=>normalizeDocument(JSON.parse(fs.readFileSync(new URL('./fixtures/smith-family.json',import.meta.url)))).tables[0];
 test('spouses appear immediately under their partner and keep marriage order',()=>{
   const f=sample(),groups=groupTablePeople(f),john=groups.find(g=>g.person.name==='John Smith'),emma=groups.find(g=>g.person.name==='Emma Smith');
   assert.deepEqual(john.spouses.map(s=>[s.person.name,s.marriage]),[['Mary Brown',1],['Anna White',2]]);

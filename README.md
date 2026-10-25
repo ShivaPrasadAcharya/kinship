@@ -30,7 +30,7 @@ Sibling display order uses explicit `order` first, then comparable numeric birth
 
 ## JSON formats
 
-The original Henry Number Generator `tables / entries` format is supported. `data/smith-family.json` and `data/khan-family.json` retain the original page's fictional examples.
+The original Henry Number Generator `tables / entries` format is supported. Tests use a private fixture under `tests/fixtures/`, separate from published family data.
 
 New exports use stable IDs:
 

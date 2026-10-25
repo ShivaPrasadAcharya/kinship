@@ -1,0 +1,23 @@
+{
+  "format": "henry-genealogy",
+  "version": 1,
+  "tables": [
+    {
+      "name": "Smith family",
+      "entries": [
+        {"name":"John Smith","rel":"ancestor","who":"","ord":null,"wife":"","gender":"M","dead":true,"rr":null,"shift":null},
+        {"name":"Mary Brown","rel":"wife","who":"John Smith","ord":1,"wife":"","gender":"F","dead":true,"rr":{"key":"sm","role":2},"shift":null},
+        {"name":"Anna White","rel":"wife","who":"John Smith","ord":2,"wife":"","gender":"F","dead":false,"rr":{"key":"sm","role":2},"shift":null},
+        {"name":"William Smith","rel":"son","who":"John Smith","ord":1,"wife":"","gender":"M","dead":true,"rr":{"key":"bc","role":2},"shift":null},
+        {"name":"Emma Smith","rel":"daughter","who":"John Smith","ord":2,"wife":"","gender":"F","dead":false,"rr":{"key":"bc","role":2},"shift":null},
+        {"name":"Ram Thapa","rel":"husband","who":"Emma Smith","ord":null,"wife":"","gender":"M","dead":false,"rr":null,"shift":null},
+        {"name":"Hari Thapa","rel":"son","who":"Emma Smith","ord":1,"wife":"","gender":"M","dead":false,"rr":{"key":"hn","role":2},"shift":null},
+        {"name":"George Smith","rel":"son","who":"John Smith","ord":3,"wife":"Anna White","gender":"M","dead":false,"rr":{"key":"bc","role":2},"shift":null},
+        {"name":"Susan Smith","rel":"sister","who":"William Smith","ord":4,"wife":"","gender":"F","dead":false,"rr":null,"shift":null},
+        {"name":"Sara Lee","rel":"wife","who":"William Smith","ord":null,"wife":"","gender":"F","dead":false,"rr":null,"shift":null},
+        {"name":"Peter Smith","rel":"son","who":"William Smith","ord":1,"wife":"","gender":"M","dead":false,"rr":{"key":"hn","role":2},"shift":null},
+        {"name":"Linda Smith","rel":"daughter","who":"William Smith","ord":2,"wife":"","gender":"F","dead":false,"rr":{"key":"hnn","role":2},"shift":null}
+      ]
+    }
+  ]
+}

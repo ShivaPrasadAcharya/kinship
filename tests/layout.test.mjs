@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import {DEFAULTS,normalizeDocument,analyze} from '../model.mjs';
 import {createDiagram} from '../diagram.mjs';
 import {orderTablePeople,renderGenealogyTable} from '../table.mjs';
-const sample=()=>normalizeDocument(JSON.parse(fs.readFileSync(new URL('../data/smith-family.json',import.meta.url)))).tables[0];
+const sample=()=>normalizeDocument(JSON.parse(fs.readFileSync(new URL('./fixtures/smith-family.json',import.meta.url)))).tables[0];
 const family=people=>normalizeDocument({name:'Layout test',people}).tables[0];
 const edgeAttributes=svg=>[...svg.matchAll(/<path class="parent-edge"[^>]*>/g)].map(([tag])=>Object.fromEntries([...tag.matchAll(/([a-z-]+)="([^"]*)"/g)].map(([,key,value])=>[key,value])));
 test('parent styles remain distinct while every child has one mother-colored arrow',()=>{
